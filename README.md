@@ -10,5 +10,5 @@ Usage
 var m = require('mithril');
 var render = require('mithril-node-render');
 
-render(m('span')) //<span></span>
+render(m('span', 'huhu')) //<span>huhu</span>
 ```
