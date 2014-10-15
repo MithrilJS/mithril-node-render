@@ -1,14 +1,5 @@
 'use strict';
 
-var omitAttrs = [
-  'config',
-  'onmousedown',
-  'onmousemove',
-  'onmouseover',
-  'onclick',
-  'onmouseout'
-];
-
 function isArray(thing) {
   return Object.prototype.toString.call(thing) === '[object Array]';
 }
@@ -20,21 +11,21 @@ function camelToDash(str) {
 
 function createAttrString(attrs) {
   if (!Object.keys(attrs).length) {
-    return '';
+    return;
   }
 
-  return ' ' + Object.keys(attrs).map(function(name) {
-    if (omitAttrs.indexOf(name) >= 0) {
-      return '';
+  return Object.keys(attrs).map(function(name) {
+    if (typeof attrs[name] === 'function') {
+      return;
     }
     if (name === 'style') {
       var styles = attrs.style;
-      return 'style="' + Object.keys(styles).map(function(property) {
+      return ' style="' + Object.keys(styles).map(function(property) {
         return [camelToDash(property).toLowerCase(), styles[property]].join(':');
       }).join(';') + '"';
     }
-    return (name === 'className' ? 'class' : name) + '="' + attrs[name] + '"';
-  }).join(' ');
+    return ' ' + (name === 'className' ? 'class' : name) + '="' + attrs[name] + '"';
+  }).join('');
 }
 
 function createTrustedContent(view) {
@@ -69,9 +60,13 @@ function render(view) {
   if (view.$trusted) {
     return createTrustedContent(view);
   }
+  var children = createChildrenContent(view);
+  if (!children) {
+    return ['<', view.tag, createAttrString(view.attrs), ' />'].join('');
+  }
   return [
     '<', view.tag, createAttrString(view.attrs), '>',
-    createChildrenContent(view),
+    children,
     '</', view.tag, '>',
   ].join('');
 }
