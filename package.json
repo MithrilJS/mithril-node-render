@@ -1,0 +1,28 @@
+{
+  "name": "mithril-node-render",
+  "version": "0.1.0",
+  "description": "Node rending of mithril views",
+  "main": "index.js",
+  "scripts": {
+    "test": "node_modules/tape/bin/tape test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/StephanHoyer/mithril-node-render.git"
+  },
+  "keywords": [
+    "mithril",
+    "node",
+    "render",
+    "template"
+  ],
+  "author": "Stephan Hoyer <ste.hoyer@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/StephanHoyer/mithril-node-render/issues"
+  },
+  "homepage": "https://github.com/StephanHoyer/mithril-node-render",
+  "devDependencies": {
+    "tape": "^3.0.0"
+  }
+}
