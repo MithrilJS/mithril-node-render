@@ -6,10 +6,51 @@ var omitAttrs = [
   'onmousemove',
   'onmouseover',
   'onclick',
+  'onmouseout'
 ];
 
 function isArray(thing) {
   return Object.prototype.toString.call(thing) === '[object Array]';
+}
+
+function camelToDash(str) {
+  return str.replace(/\W+/g, '-')
+            .replace(/([a-z\d])([A-Z])/g, '$1-$2');
+}
+
+function createAttrString(attrs) {
+  if (!Object.keys(attrs).length) {
+    return '';
+  }
+
+  return ' ' + Object.keys(attrs).map(function(name) {
+    if (omitAttrs.indexOf(name) >= 0) {
+      return '';
+    }
+    if (name === 'style') {
+      var styles = attrs.style;
+      return 'style="' + Object.keys(styles).map(function(property) {
+        return [camelToDash(property).toLowerCase(), styles[property]].join(':');
+      }).join(';') + '"';
+    }
+    return (name === 'className' ? 'class' : name) + '="' + attrs[name] + '"';
+  }).join(' ');
+}
+
+function createTrustedContent(view) {
+  return Object.keys(view).map(function(key) {
+    if (key === '$trusted') {
+      return '';
+    }
+    return view[key];
+  }).join('');
+}
+
+function createChildrenContent(view) {
+  if(!view.children || !view.children.length) {
+    return '';
+  }
+  return render(view.children);
 }
 
 function render(view) {
@@ -26,28 +67,11 @@ function render(view) {
   }
 
   if (view.$trusted) {
-    return Object.keys(view).map(function(key) {
-      if (key === '$trusted') {
-        return '';
-      }
-      return view[key];
-    }).join('');
+    return createTrustedContent(view);
   }
-
-  var attrString = '';
-  if (view.attrs) {
-    attrString = Object.keys(view.attrs).map(function(name) {
-      if (omitAttrs.indexOf(name) >= 0) {
-        return '';
-      }
-      return (name === 'className' ? 'class' : name) + '="' + view.attrs[name] + '"';
-    }).join(' ');
-    attrString = attrString ? ' ' + attrString : '';
-  }
-
   return [
-    '<', view.tag, attrString, '>',
-    (view.children ? render(view.children) : ''),
+    '<', view.tag, createAttrString(view.attrs), '>',
+    createChildrenContent(view),
     '</', view.tag, '>',
   ].join('');
 }
