@@ -1,6 +1,6 @@
 {
   "name": "mithril-node-render",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Node rending of mithril views",
   "main": "index.js",
   "scripts": {
