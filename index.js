@@ -1,5 +1,8 @@
 'use strict';
 
+var VOID_TAGS = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr',
+    'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
+
 function isArray(thing) {
   return Object.prototype.toString.call(thing) === '[object Array]';
 }
@@ -10,8 +13,8 @@ function camelToDash(str) {
 }
 
 function createAttrString(attrs) {
-  if (!Object.keys(attrs).length) {
-    return;
+  if (!attrs || !Object.keys(attrs).length) {
+    return '';
   }
 
   return Object.keys(attrs).map(function(name) {
@@ -61,8 +64,8 @@ function render(view) {
     return createTrustedContent(view);
   }
   var children = createChildrenContent(view);
-  if (!children) {
-    return ['<', view.tag, createAttrString(view.attrs), ' />'].join('');
+  if (!children && VOID_TAGS.indexOf(view.tag) >= 0) {
+    return '<' + view.tag + createAttrString(view.attrs) + '>';
   }
   return [
     '<', view.tag, createAttrString(view.attrs), '>',
