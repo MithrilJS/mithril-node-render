@@ -52,7 +52,7 @@ function render(view) {
     return '';
   }
 
-  if (typeof view === 'string') {
+  if (typeof view === 'string' || typeof view === 'number') {
     return view;
   }
 
