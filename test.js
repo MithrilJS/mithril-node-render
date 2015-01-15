@@ -33,6 +33,6 @@ test('render', function(t) {
     1,
     m('span'),
     "2"
-  ])), '<div>1<span></span>2</div>');
+  ])), '<div>1<span></span>2</div>', 'should render numbers as text nodes');
   t.end();
 });
