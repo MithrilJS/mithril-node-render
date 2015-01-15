@@ -29,5 +29,10 @@ test('render', function(t) {
       color: 'red'
     }
   })), '<span style="padding-left:10px;color:red"></span>', 'should render children');
+  t.equal(render(m('div', [
+    1,
+    m('span'),
+    "2"
+  ])), '<div>1<span></span>2</div>', 'should render numbers as text nodes');
   t.end();
 });
