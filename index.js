@@ -23,6 +23,9 @@ function createAttrString(attrs) {
     }
     if (name === 'style') {
       var styles = attrs.style;
+      if (typeof styles === 'string') {
+        return ' style="' + styles + '"';
+      }
       return ' style="' + Object.keys(styles).map(function(property) {
         return [camelToDash(property).toLowerCase(), styles[property]].join(':');
       }).join(';') + '"';
