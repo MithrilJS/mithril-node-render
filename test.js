@@ -34,5 +34,9 @@ test('render', function(t) {
     m('span'),
     "2"
   ])), '<div>1<span></span>2</div>', 'should render numbers as text nodes');
+  t.equal(render(m('div', 0)), '<div>0</div>');
+  t.equal(render(m('div', false)), '<div>false</div>');
+  t.equal(render(m('div', { a: true})), '<div a></div>');
+  t.equal(render(m('div', { a: false})), '<div></div>');
   t.end();
 });
