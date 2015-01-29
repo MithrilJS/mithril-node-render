@@ -47,7 +47,7 @@ function createTrustedContent(view) {
 }
 
 function createChildrenContent(view) {
-  if(Array.isArray(view.children) && !view.children.length) {
+  if(isArray(view.children) && !view.children.length) {
     return '';
   }
 
