@@ -21,6 +21,9 @@ function createAttrString(attrs) {
     if (typeof attrs[name] === 'function') {
       return;
     }
+    if (typeof attrs[name] === 'boolean') {
+      return attrs[name] ? ' ' + name : '';
+    }
     if (name === 'style') {
       var styles = attrs.style;
       if (typeof styles === 'string') {
@@ -44,19 +47,21 @@ function createTrustedContent(view) {
 }
 
 function createChildrenContent(view) {
-  if(!view.children || !view.children.length) {
+  if(Array.isArray(view.children) && !view.children.length) {
     return '';
   }
+
   return render(view.children);
 }
 
 function render(view) {
-  if (!view) {
-    return '';
+  var type = typeof view;
+  if (type === 'string' || type === 'number' || type === 'boolean') {
+    return view;
   }
 
-  if (typeof view === 'string' || typeof view === 'number') {
-    return view;
+  if (!view) {
+    return '';
   }
 
   if (isArray(view)) {
