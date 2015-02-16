@@ -12,6 +12,7 @@ test('render', function(t) {
   t.equal(render(m('#bar', 'content')),
     '<div id="bar">content</div>', 'should render id');
   t.equal(render(m('br')), '<br>', 'should render short nodes when no children');
+  t.equal(render(m('HR')), '<HR>', 'should render short nodes when no children and tag name is uppercase');
   t.equal(render(m('span', {
     'data-foo': 'bar',
     selected: 'selected'
