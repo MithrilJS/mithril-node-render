@@ -18,4 +18,5 @@ render(m('span', 'huhu')) //<span>huhu</span>
 See also
 --------
 
-[Blog post](https://gist.github.com/StephanHoyer/bddccd9e159828867d2a) about isomorphic mithril applications.
+* [Blog post](https://gist.github.com/StephanHoyer/bddccd9e159828867d2a) about isomorphic mithril applications
+* [Usage Example](https://github.com/StephanHoyer/mithril-isomorphic-example/blob/master/README.md)
