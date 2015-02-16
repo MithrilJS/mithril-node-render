@@ -37,14 +37,14 @@ function createAttrString(attrs) {
     }
     if (name === 'style') {
       var styles = attrs.style;
-      if (typeof styles === 'string') {
-        return ' style="' + styles + '"';
+      if (typeof styles === 'object') {
+        styles = Object.keys(styles).map(function(property) {
+          return [camelToDash(property).toLowerCase(), styles[property]].join(':');
+        }).join(';');
       }
-      return ' style="' + Object.keys(styles).map(function(property) {
-        return [camelToDash(property).toLowerCase(), styles[property]].join(':');
-      }).join(';') + '"';
+      return ' style="' + escapeHtml(styles) + '"';
     }
-    return ' ' + (name === 'className' ? 'class' : name) + '="' + attrs[name] + '"';
+    return ' ' + escapeHtml(name === 'className' ? 'class' : name) + '="' + escapeHtml(attrs[name]) + '"';
   }).join('');
 }
 

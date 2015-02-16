@@ -40,5 +40,8 @@ test('render', function(t) {
   t.equal(render(m('div', { a: false})), '<div></div>');
   t.equal(render(m('div', m.trust('<foo></foo>'))), '<div><foo></foo></div>');
   t.equal(render(m('div', '<foo></foo>')), '<div>&lt;foo&gt;&lt;/foo&gt;</div>');
+  t.equal(render(m('div', {
+    style: '"></div><div a="'
+  })), '<div style="&quot;&gt;&lt;/div&gt;&lt;div a=&quot;"></div>');
   t.end();
 });
