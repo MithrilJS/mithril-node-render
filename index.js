@@ -37,15 +37,6 @@ function createAttrString(attrs) {
   }).join('');
 }
 
-function createTrustedContent(view) {
-  return Object.keys(view).map(function(key) {
-    if (key === '$trusted') {
-      return '';
-    }
-    return view[key];
-  }).join('');
-}
-
 function createChildrenContent(view) {
   if(isArray(view.children) && !view.children.length) {
     return '';
@@ -69,7 +60,7 @@ function render(view) {
   }
 
   if (view.$trusted) {
-    return createTrustedContent(view);
+    return '' + view;
   }
   var children = createChildrenContent(view);
   if (!children && VOID_TAGS.indexOf(view.tag) >= 0) {
