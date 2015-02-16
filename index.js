@@ -12,6 +12,17 @@ function camelToDash(str) {
             .replace(/([a-z\d])([A-Z])/g, '$1-$2');
 }
 
+// shameless stolen from https://github.com/punkave/sanitize-html
+function escapeHtml(s) {
+  if (s === 'undefined') {
+    s = '';
+  }
+  if (typeof(s) !== 'string') {
+    s = s + '';
+  }
+  return s.replace(/\&/g, '&amp;').replace(/</g, '&lt;').replace(/\>/g, '&gt;').replace(/\"/g, '&quot;');
+}
+
 function createAttrString(attrs) {
   if (!attrs || !Object.keys(attrs).length) {
     return '';
@@ -47,7 +58,12 @@ function createChildrenContent(view) {
 
 function render(view) {
   var type = typeof view;
-  if (type === 'string' || type === 'number' || type === 'boolean') {
+
+  if (type === 'string') {
+    return escapeHtml(view);
+  }
+
+  if(type === 'number' || type === 'boolean') {
     return view;
   }
 
