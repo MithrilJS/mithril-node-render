@@ -13,14 +13,18 @@ function camelToDash(str) {
 }
 
 // shameless stolen from https://github.com/punkave/sanitize-html
-function escapeHtml(s) {
+function escapeHtml(s, replaceDoubleQuote) {
   if (s === 'undefined') {
     s = '';
   }
   if (typeof(s) !== 'string') {
     s = s + '';
   }
-  return s.replace(/\&/g, '&amp;').replace(/</g, '&lt;').replace(/\>/g, '&gt;').replace(/\"/g, '&quot;');
+  s =  s.replace(/\&/g, '&amp;').replace(/</g, '&lt;').replace(/\>/g, '&gt;');
+  if (replaceDoubleQuote) {
+    return s.replace(/\"/g, '&quot;');
+  }
+  return s;
 }
 
 function createAttrString(attrs) {
@@ -42,9 +46,9 @@ function createAttrString(attrs) {
           return [camelToDash(property).toLowerCase(), styles[property]].join(':');
         }).join(';');
       }
-      return ' style="' + escapeHtml(styles) + '"';
+      return ' style="' + escapeHtml(styles, true) + '"';
     }
-    return ' ' + escapeHtml(name === 'className' ? 'class' : name) + '="' + escapeHtml(attrs[name]) + '"';
+    return ' ' + escapeHtml(name === 'className' ? 'class' : name) + '="' + escapeHtml(attrs[name], true) + '"';
   }).join('');
 }
 
