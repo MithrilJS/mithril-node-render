@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/StephanHoyer/mithril-node-render",
   "devDependencies": {
-    "mithril": "^0.1.30",
+    "mithril": "git://github.com/lhorie/mithril.js.git#components",
     "tape": "^3.0.0"
   }
 }
