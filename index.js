@@ -79,6 +79,11 @@ function render(view) {
     return view.map(render).join('');
   }
 
+  //compontent
+  if (view.controller && view.view) {
+    return render(view.view(view.controller()));
+  }
+
   if (view.$trusted) {
     return '' + view;
   }

@@ -47,3 +47,25 @@ test('render', function(t) {
   t.equal(render(m('pre', 'var = ' + JSON.stringify({foo: 1}))), '<pre>var = {"foo":1}</pre>');
   t.end();
 });
+
+test('components', function(t) {
+  var events = {};
+  var myComponent = {
+    controller: function(data) {
+      return {
+        foo: 'bar',
+        onunload: events.onunload
+      };
+    },
+    view: function(scope, data) {
+      return m('div', [
+        'hello',
+        scope.foo,
+        data
+      ]);
+    }
+  };
+  t.equal(render(m('div', myComponent)), '<div><div>hellobar</div></div>');
+  t.equal(render(m('span', m.module(myComponent, 'baz'))), '<div><div>hellobar</div></div>');
+  t.end();
+});
