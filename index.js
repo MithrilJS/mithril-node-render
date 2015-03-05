@@ -81,7 +81,13 @@ function render(view) {
 
   //compontent
   if (view.controller && view.view) {
-    return render(view.view(view.controller()));
+    var scope = view.controller();
+    var result = render(view.view(scope));
+    if (scope.onunload) {
+      scope.onunload();
+    }
+    return result;
+
   }
 
   if (view.$trusted) {
