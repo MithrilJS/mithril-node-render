@@ -83,7 +83,7 @@ function render(view) {
     return '' + view;
   }
   var children = createChildrenContent(view);
-  if (!children && VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0) {
+  if (!children && view.tag && VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0) {
     return '<' + view.tag + createAttrString(view.attrs) + '>';
   }
   return [
