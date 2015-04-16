@@ -67,5 +67,5 @@ test('components', function(t) {
   };
   t.equal(render(m('div', myComponent)), '<div><div>hellobar</div></div>');
   events.onunload = t.end;
-  t.equal(render(m('span', m.module(myComponent, 'baz'))), '<span><div>hellobarbaz</div></span>');
+  t.equal(render(m('span', m.component(myComponent, 'baz'))), '<span><div>hellobarbaz</div></span>');
 });
