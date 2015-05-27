@@ -76,4 +76,11 @@ test('components', function(t) {
       return m('span', ctrl.foo);
     }
   })), '<div><span>bar</span></div>');
+  t.equal(render(m('div', {
+    controller: function() {
+    },
+    view: function() {
+      return m('span', 'huhu');
+    }
+  })), '<div><span>huhu</span></div>');
 });
