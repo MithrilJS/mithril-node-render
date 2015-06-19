@@ -83,4 +83,9 @@ test('components', function(t) {
       return m('span', 'huhu');
     }
   })), '<div><span>huhu</span></div>');
+  t.equal(render(m('div', {
+    view: function() {
+      return m('span', 'huhu');
+    }
+  })), '<div><span>huhu</span></div>');
 });
