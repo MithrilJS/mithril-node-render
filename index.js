@@ -80,8 +80,8 @@ function render(view) {
   }
 
   //compontent
-  if (view.controller && view.view) {
-    var scope = new view.controller;
+  if (view.view) {
+    var scope = view.controller ? new view.controller : {};
     var result = render(view.view(scope));
     if (scope.onunload) {
       scope.onunload();
