@@ -1,7 +1,8 @@
 'use strict';
 
 var VOID_TAGS = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr',
-    'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track', 'wbr'];
+    'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track',
+    'wbr', '!doctype'];
 
 function isArray(thing) {
   return Object.prototype.toString.call(thing) === '[object Array]';
