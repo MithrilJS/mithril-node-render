@@ -13,8 +13,10 @@ test('render', function(t) {
     '<div id="bar">content</div>', 'should render id');
   t.equal(render(m('br')), '<br>', 'should render short nodes when no children');
   t.equal(render(m('HR')), '<HR>', 'should render short nodes when no children and tag name is uppercase');
-  t.equal(render(m('!doctype')), '<!doctype>', 'should render short node doctype');
-  t.equal(render(m('!doctype', {html: true})), '<!doctype html>', 'should render short node doctype HTML5');
+  t.equal(render(m('!doctype')), '<!doctype>',
+    'should render short node doctype');
+  t.equal(render(m('!doctype', {html: true})), '<!doctype html>',
+    'should render short node doctype HTML5');
   t.equal(render(m('span', {
     'data-foo': 'bar',
     selected: 'selected'
