@@ -33,7 +33,7 @@ function createAttrString(attrs) {
   }
 
   return Object.keys(attrs).map(function(name) {
-    if (typeof attrs[name] === 'function') {
+    if (typeof attrs[name] === 'undefined' || typeof attrs[name] === 'function') {
       return;
     }
     if (typeof attrs[name] === 'boolean') {
