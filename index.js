@@ -34,13 +34,17 @@ function createAttrString(attrs) {
   }
 
   return Object.keys(attrs).map(function(name) {
-    if (typeof attrs[name] === 'undefined' || typeof attrs[name] === 'function') {
+    var value = attrs[name];
+    if (typeof value === 'undefined' || value === null || typeof value === 'function') {
       return;
     }
-    if (typeof attrs[name] === 'boolean') {
-      return attrs[name] ? ' ' + name : '';
+    if (typeof value === 'boolean') {
+      return value ? ' ' + name : '';
     }
     if (name === 'style') {
+      if (!value) {
+        return;
+      }
       var styles = attrs.style;
       if (typeof styles === 'object') {
         styles = Object.keys(styles).map(function(property) {
@@ -49,7 +53,7 @@ function createAttrString(attrs) {
       }
       return ' style="' + escapeHtml(styles, true) + '"';
     }
-    return ' ' + escapeHtml(name === 'className' ? 'class' : name) + '="' + escapeHtml(attrs[name], true) + '"';
+    return ' ' + escapeHtml(name === 'className' ? 'class' : name) + '="' + escapeHtml(value, true) + '"';
   }).join('');
 }
 
@@ -88,7 +92,6 @@ function render(view) {
       scope.onunload();
     }
     return result;
-
   }
 
   if (view.$trusted) {
