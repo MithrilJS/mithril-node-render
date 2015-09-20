@@ -46,6 +46,9 @@ test('render', function(t) {
   t.equal(render(m('div', { a: undefined})), '<div></div>');
   t.equal(render(m('div', { style: null })), '<div></div>');
   t.equal(render(m('div', { style: '' })), '<div></div>');
+  t.equal(render(m('div', { style: { color: '' } })), '<div></div>');
+  t.equal(render(m('div', { style: { height: '20px', color: '' } })), '<div style="height:20px"></div>');
+  t.equal(render(m('div', { style: { height: '20px', color: '', width: '10px' } })), '<div style="height:20px;width:10px"></div>');
   t.equal(render(m('div', { a: 'foo'})), '<div a="foo"></div>');
   t.equal(render(m('div', m.trust('<foo></foo>'))), '<div><foo></foo></div>');
   t.equal(render(m('div', '<foo></foo>')), '<div>&lt;foo&gt;&lt;/foo&gt;</div>');
