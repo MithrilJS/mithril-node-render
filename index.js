@@ -13,6 +13,10 @@ function camelToDash(str) {
             .replace(/([a-z\d])([A-Z])/g, '$1-$2');
 }
 
+function removeEmpties(n) {
+  return n != '';
+}
+
 // shameless stolen from https://github.com/punkave/sanitize-html
 function escapeHtml(s, replaceDoubleQuote) {
   if (s === 'undefined') {
@@ -48,10 +52,10 @@ function createAttrString(attrs) {
       var styles = attrs.style;
       if (typeof styles === 'object') {
         styles = Object.keys(styles).map(function(property) {
-          return [camelToDash(property).toLowerCase(), styles[property]].join(':');
-        }).join(';');
+          return styles[property] != '' ? [camelToDash(property).toLowerCase(), styles[property]].join(':') : '';
+        }).filter(removeEmpties).join(';');
       }
-      return ' style="' + escapeHtml(styles, true) + '"';
+      return styles != '' ? ' style="' + escapeHtml(styles, true) + '"' : '';
     }
     return ' ' + escapeHtml(name === 'className' ? 'class' : name) + '="' + escapeHtml(value, true) + '"';
   }).join('');
