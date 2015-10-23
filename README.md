@@ -20,6 +20,8 @@ Options
 
 Optionally pass in options as an object: `m.render(component, options)`.
 
+The following options are supported:
+
 **escapeAttributeValues**  
 `Default: true`
 
