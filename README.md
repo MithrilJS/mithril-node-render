@@ -15,11 +15,13 @@ var render = require('mithril-node-render');
 render(m('span', 'huhu')) //<span>huhu</span>
 ```
 
-Optionally disable escaping for attribute values:
+Options
+-------
 
-```
-m.render(m('span', { id: '<something strange>' }), { escapeAttributeValues: false })
-```
+Optionally pass in options as an object: `m.render(component, options)`.
+
+## escapeAttributeValues
+`Default: true`
 
 See also
 --------
