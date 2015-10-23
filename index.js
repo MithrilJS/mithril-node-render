@@ -32,7 +32,7 @@ function escapeHtml(s, replaceDoubleQuote) {
   return s;
 }
 
-function createAttrString(attrs) {
+function createAttrString(attrs, escapeAttributeValues) {
   if (!attrs || !Object.keys(attrs).length) {
     return '';
   }
@@ -55,9 +55,10 @@ function createAttrString(attrs) {
           return styles[property] != '' ? [camelToDash(property).toLowerCase(), styles[property]].join(':') : '';
         }).filter(removeEmpties).join(';');
       }
-      return styles != '' ? ' style="' + escapeHtml(styles, true) + '"' : '';
+      return styles != '' ? ' style="' + (escapeAttributeValues ? escapeHtml(styles, true) : styles) + '"' : '';
     }
-    return ' ' + escapeHtml(name === 'className' ? 'class' : name) + '="' + escapeHtml(value, true) + '"';
+    name = name === 'className' ? 'class' : name;
+    return ' ' + (escapeAttributeValues ? escapeHtml(name) : name) + '="' + (escapeAttributeValues ? escapeHtml(value, true) : value) + '"';
   }).join('');
 }
 
@@ -69,7 +70,10 @@ function createChildrenContent(view) {
   return render(view.children);
 }
 
-function render(view) {
+function render(view, options) {
+  options = options || {};
+  if(!options.hasOwnProperty('escapeAttributeValues')) options.escapeAttributeValues = true;
+
   var type = typeof view;
 
   if (type === 'string') {
@@ -85,7 +89,7 @@ function render(view) {
   }
 
   if (isArray(view)) {
-    return view.map(render).join('');
+    return view.map(function(view) { return render(view, options) }).join('');
   }
 
   //compontent
@@ -103,10 +107,10 @@ function render(view) {
   }
   var children = createChildrenContent(view);
   if (!children && VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0) {
-    return '<' + view.tag + createAttrString(view.attrs) + '>';
+    return '<' + view.tag + createAttrString(view.attrs, options.escapeAttributeValues) + '>';
   }
   return [
-    '<', view.tag, createAttrString(view.attrs), '>',
+    '<', view.tag, createAttrString(view.attrs, options.escapeAttributeValues), '>',
     children,
     '</', view.tag, '>',
   ].join('');
