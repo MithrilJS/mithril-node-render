@@ -22,8 +22,14 @@ Optionally pass in options as an object: `m.render(component, options)`.
 
 The following options are supported:
 
-**escapeAttributeValues**  
-`Default: true`
+**escapeAttributeValue(value)**  
+`Default: render.escapeHtml`  
+A filter function for attribute values. Receives value, returns what is printed.
+
+**escapeString(value)**  
+`Default: render.escapeHtml`  
+A filter function for string nodes and attribute names. Receives value, returns what is printed.
+
 
 See also
 --------

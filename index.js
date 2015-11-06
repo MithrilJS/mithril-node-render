@@ -32,7 +32,7 @@ function escapeHtml(s, replaceDoubleQuote) {
   return s;
 }
 
-function createAttrString(attrs, escapeAttributeValues) {
+function createAttrString(attrs, escapeAttributeValue) {
   if (!attrs || !Object.keys(attrs).length) {
     return '';
   }
@@ -55,10 +55,9 @@ function createAttrString(attrs, escapeAttributeValues) {
           return styles[property] != '' ? [camelToDash(property).toLowerCase(), styles[property]].join(':') : '';
         }).filter(removeEmpties).join(';');
       }
-      return styles != '' ? ' style="' + (escapeAttributeValues ? escapeHtml(styles, true) : styles) + '"' : '';
+      return styles != '' ? ' style="' + escapeAttributeValue(styles, true) + '"' : '';
     }
-    name = name === 'className' ? 'class' : name;
-    return ' ' + (escapeAttributeValues ? escapeHtml(name) : name) + '="' + (escapeAttributeValues ? escapeHtml(value, true) : value) + '"';
+    return ' ' + (name === 'className' ? 'class' : name) + '="' + escapeAttributeValue(value, true) + '"';
   }).join('');
 }
 
@@ -72,15 +71,23 @@ function createChildrenContent(view) {
 
 function render(view, options) {
   options = options || {};
-  if(!options.hasOwnProperty('escapeAttributeValues')) options.escapeAttributeValues = true;
+
+  var defaultOptions = {
+    escapeAttributeValue: escapeHtml,
+    escapeString: escapeHtml
+  };
+
+  Object.keys(defaultOptions).forEach(function(key) {
+    if (!options.hasOwnProperty(key)) options[key] = defaultOptions[key];
+  });
 
   var type = typeof view;
 
   if (type === 'string') {
-    return escapeHtml(view);
+    return options.escapeString(view);
   }
 
-  if(type === 'number' || type === 'boolean') {
+  if (type === 'number' || type === 'boolean') {
     return view;
   }
 
@@ -95,7 +102,7 @@ function render(view, options) {
   //compontent
   if (view.view) {
     var scope = view.controller ? new view.controller : {};
-    var result = render(view.view(scope));
+    var result = render(view.view(scope), options);
     if (scope.onunload) {
       scope.onunload();
     }
@@ -107,13 +114,15 @@ function render(view, options) {
   }
   var children = createChildrenContent(view);
   if (!children && VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0) {
-    return '<' + view.tag + createAttrString(view.attrs, options.escapeAttributeValues) + '>';
+    return '<' + view.tag + createAttrString(view.attrs, options.escapeAttributeValue) + '>';
   }
   return [
-    '<', view.tag, createAttrString(view.attrs, options.escapeAttributeValues), '>',
+    '<', view.tag, createAttrString(view.attrs, options.escapeAttributeValue), '>',
     children,
     '</', view.tag, '>',
   ].join('');
 }
+
+render.escapeHtml = escapeHtml;
 
 module.exports = render;
