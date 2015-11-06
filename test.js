@@ -55,6 +55,10 @@ test('render', function(t) {
   t.equal(render(m('div', {
     style: '"></div><div a="'
   })), '<div style="&quot;&gt;&lt;/div&gt;&lt;div a=&quot;"></div>');
+  t.equal(render(m('div', {
+    style: '"></div><div a="'
+  }), { escapeAttributeValue: function(value) { return value; } }), '<div style=""></div><div a=""></div>');
+  t.equal('function', typeof render.escapeHtml);
   t.equal(render(m('pre', 'var = ' + JSON.stringify({foo: 1}))), '<pre>var = {"foo":1}</pre>');
   t.end();
 });
