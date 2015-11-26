@@ -28,7 +28,7 @@ A filter function for attribute values. Receives value, returns what is printed.
 
 **escapeString(value)**  
 `Default: render.escapeHtml`  
-A filter function for string nodes and attribute names. Receives value, returns what is printed.
+A filter function for string nodes. Receives value, returns what is printed.
 
 
 See also
