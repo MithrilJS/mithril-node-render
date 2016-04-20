@@ -60,6 +60,7 @@ test('render', function(t) {
   }), { escapeAttributeValue: function(value) { return value; } }), '<div style=""></div><div a=""></div>');
   t.equal('function', typeof render.escapeHtml);
   t.equal(render(m('pre', 'var = ' + JSON.stringify({foo: 1}))), '<pre>var = {"foo":1}</pre>');
+  t.equal(render(m('svg', m('use', { href : "fooga.com" }))), '<svg><use xlink:href="fooga.com"></use></svg>');
   t.end();
 });
 

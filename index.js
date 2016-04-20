@@ -32,7 +32,9 @@ function escapeHtml(s, replaceDoubleQuote) {
   return s;
 }
 
-function createAttrString(attrs, escapeAttributeValue) {
+function createAttrString(view, escapeAttributeValue) {
+  var attrs = view.attrs;
+  
   if (!attrs || !Object.keys(attrs).length) {
     return '';
   }
@@ -57,6 +59,12 @@ function createAttrString(attrs, escapeAttributeValue) {
       }
       return styles != '' ? ' style="' + escapeAttributeValue(styles, true) + '"' : '';
     }
+    
+    // Handle SVG <use> tags specially
+    if (name === 'href' && view.tag === 'use') {
+        return ' xlink:href="' + escapeAttributeValue(value, true) + '"';
+    }
+    
     return ' ' + (name === 'className' ? 'class' : name) + '="' + escapeAttributeValue(value, true) + '"';
   }).join('');
 }
@@ -114,10 +122,10 @@ function render(view, options) {
   }
   var children = createChildrenContent(view);
   if (!children && VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0) {
-    return '<' + view.tag + createAttrString(view.attrs, options.escapeAttributeValue) + '>';
+    return '<' + view.tag + createAttrString(view, options.escapeAttributeValue) + '>';
   }
   return [
-    '<', view.tag, createAttrString(view.attrs, options.escapeAttributeValue), '>',
+    '<', view.tag, createAttrString(view, options.escapeAttributeValue), '>',
     children,
     '</', view.tag, '>',
   ].join('');
