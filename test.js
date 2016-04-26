@@ -82,8 +82,9 @@ test('components', function(t) {
     }
   };
   t.equal(render(m('div', myComponent)), '<div><div>hellobar</div></div>');
-  events.onunload = t.end;
   t.equal(render(m('span', m.component(myComponent, 'baz'))), '<span><div>hellobarbaz</div></span>');
+  events.onunload = t.end;
+  t.equal(render(m('span', m(myComponent, 'foz'))), '<span><div>hellobarfoz</div></span>');
   t.equal(render(m('div', {
     controller: function() {
       this.foo = 'bar';
