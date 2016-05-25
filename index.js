@@ -69,7 +69,10 @@ function createAttrString (view, escapeAttributeValue) {
   }).join('')
 }
 
-function createChildrenContent (view) {
+function createChildrenContent (view, options) {
+  if (view.text != null) {
+    return options.escapeString(view.text)
+  }
   if (isArray(view.children) && !view.children.length) {
     return ''
   }
@@ -108,19 +111,26 @@ function render (view, options) {
   }
 
   // compontent
-  if (view.view) {
-    var scope = view.controller ? new view.controller() : {}
-    var result = render(view.view(scope), options)
-    if (scope.onunload) {
-      scope.onunload()
+  if (typeof view.tag === 'object' && view.tag.view) {
+    var compontent = view.tag
+    var node = view
+    if (compontent.oninit) {
+      compontent.oninit(node)
+    }
+    var result = render(compontent.view(node), options)
+    if (compontent.onremove) {
+      compontent.onremove(node)
     }
     return result
   }
 
-  if (view.$trusted) {
-    return '' + view
+  if (view.tag === '<') {
+    return '' + view.children
   }
-  var children = createChildrenContent(view)
+  var children = createChildrenContent(view, options)
+  if (view.tag === '#') {
+    return options.escapeString(children)
+  }
   if (!children && VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0) {
     return '<' + view.tag + createAttrString(view, options.escapeAttributeValue) + '>'
   }
