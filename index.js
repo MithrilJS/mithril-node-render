@@ -77,7 +77,7 @@ function createChildrenContent (view, options) {
     return ''
   }
 
-  return render(view.children)
+  return render(view.children, options)
 }
 
 function render (view, options) {
@@ -85,7 +85,8 @@ function render (view, options) {
 
   var defaultOptions = {
     escapeAttributeValue: escapeHtml,
-    escapeString: escapeHtml
+    escapeString: escapeHtml,
+    strict: false
   }
 
   Object.keys(defaultOptions).forEach(function (key) {
@@ -131,8 +132,11 @@ function render (view, options) {
   if (view.tag === '#') {
     return options.escapeString(children)
   }
-  if (!children && VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0) {
-    return '<' + view.tag + createAttrString(view, options.escapeAttributeValue) + '>'
+  if (view.tag === '[') {
+    return '' + children
+  }
+  if (!children && (options.strict || VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0)) {
+    return '<' + view.tag + createAttrString(view, options.escapeAttributeValue) + (options.strict ? '/' : '') + '>'
   }
   return [
     '<', view.tag, createAttrString(view, options.escapeAttributeValue), '>',
