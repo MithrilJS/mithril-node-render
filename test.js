@@ -16,6 +16,7 @@ o('render', function () {
   o(render(m('span', { 'data-foo': 'bar', selected: 'selected' }))).equals('<span data-foo="bar" selected="selected"></span>')('should render attributes')
   o(render(m('ul', 'huhu'))).equals('<ul>huhu</ul>')('should render string')
   o(render([m('span', 'foo'), m('div', 'bar')])).equals('<span>foo</span><div>bar</div>')('should render arrays')
+  o(render(m('div', [[m('span', 'foo'), m('div', 'bar')]]))).equals('<div><span>foo</span><div>bar</div></div>')('should render nested arrays')
   o(render(m('span', m('div')))).equals('<span><div></div></span>')('should render children')
   o(render(m('span', { onmousemove: function (event) {} }))).equals('<span></span>')('should not render events')
   o(render(m('span', { style: { paddingLeft: '10px', color: 'red' } }))).equals('<span style="padding-left:10px;color:red"></span>')('should render children')
@@ -38,6 +39,8 @@ o('render', function () {
   o(typeof render.escapeHtml).equals('function')
   o(render(m('pre', 'var = ' + JSON.stringify({foo: 1})))).equals('<pre>var = {"foo":1}</pre>')
   o(render(m('svg', m('use', { href: 'fooga.com' })))).equals('<svg><use xlink:href="fooga.com"></use></svg>')
+  o(render(m('input'), {strict: true})).equals('<input/>')('should render closed input-tag')
+  o(render(m('div'), {strict: true})).equals('<div/>')('should render closed div-tag')
 })
 
 o('components', function () {
