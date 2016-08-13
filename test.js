@@ -77,4 +77,169 @@ o('components', function () {
   })))).equals('<div><span>huhu</span></div>')
 })
 
+o('`this` in component', function () {
+  var oninit = o.spy()
+  var myComponent = {
+    oninit: function (vnode) {
+      oninit()
+      o(this).equals(vnode.state)('vnode.state should be the context in `oninit`')
+      o(this.foo).equals(undefined)('this.foo should be undefined initially')
+      this.foo = 5
+      o(vnode.state.bar).equals(4)('component properties should be copied to the state')
+    },
+    view: function (vnode) {
+      o(this).equals(vnode.state)('vnode.state should be the context in the view')
+      return m('div', 'hello')
+    },
+    onremove: function (vnode) {
+      o(this).equals(vnode.state)('vnode.state should be the context in `onremove`')
+    },
+    bar: 4
+  }
+
+  o(render([m(myComponent), m(myComponent)])).equals('<div>hello</div><div>hello</div>')
+
+  o(oninit.callCount).equals(2)('the component should have been initialized twice')
+})
+
+o('lifecycle hooks as attributes on elements', function () {
+  var initialized, removed
+  render(m('p', {
+    oninit: function (vnode) {
+      initialized = true
+      o(this).equals(vnode.state)('vnode.state should be the context in `oninit`')
+    },
+    onremove: function (vnode) {
+      removed = true
+      o(this).equals(vnode.state)('vnode.state should be the context in `onremove`')
+    }
+  }))
+  o(initialized).equals(true)('attr.oninit should run')
+  o(removed).equals(true)('attr.onremove should run')
+})
+
+o('lifecycle hooks as attributes on components', function () {
+  var attrInitialized, attrRemoved, tagInitialized, tagRemoved
+  var myComponent = {
+    oninit: function () {
+      o(attrInitialized).equals(true)('`attr.oninit()` should run before `tag.oninit()`')
+      tagInitialized = true
+    },
+    view: function () { return m('p', 'p') },
+    onremove: function () {
+      o(attrRemoved).equals(true)('`attr.onremove()` should run before `tag.onremove()`')
+      tagRemoved = true
+    }
+  }
+  o(render(m(myComponent, {
+    oninit: function (vnode) {
+      o(this).equals(vnode.state)('vnode.state should be the context in `attr.oninit`')
+      attrInitialized = true
+    },
+    onremove: function (vnode) {
+      o(this).equals(vnode.state)('vnode.state should be the context in `attr.onremove`')
+      attrRemoved = true
+    }
+  }))).equals('<p>p</p>')
+  o(tagInitialized).equals(true)('tag.oninit should be called')
+  o(tagRemoved).equals(true)('tag.onremove should be called')
+})
+
+o('onremove hooks should be called once the whole tree has been inititalized', function () {
+  var initialized = 0
+  var onremove = o.spy()
+  function oninit () {
+    initialized++
+    o(onremove.callCount).equals(0)
+  }
+  var attrs = {oninit: oninit, onremove: onremove}
+  var myComponent = {
+    oninit: oninit,
+    view: function () {
+      return m('p', attrs, 'p')
+    },
+    onremove: onremove
+  }
+  o(render([m(myComponent, attrs), m(myComponent, attrs)]))
+
+  /*
+  We just rendered two components, and each has three sets of hooks defined:
+  one on the component object, one passed as component attributes, and one passed
+  as attributes in the view. => 2 × 3 === 6
+  */
+  o(initialized).equals(6)('oninit should run six times')
+  o(onremove.callCount).equals(6)('onremove should run six times')
+})
+
+o('hooks are called top-down, depth-first on elements', function () {
+  /*
+   Suppose a tree with the following structure: two levels of depth,
+   two components on the first depth level, the first one having a
+   single child on level 2.
+
+   +-- p
+   | +-- a
+   |
+   +-- ul
+
+  */
+  var pInit = false
+  var aInit = false
+  var ulInit = false
+  var pRemoved = false
+  var aRemoved = false
+  var ulRemoved = false
+  o(render([
+    m(
+      'p',
+      {
+        oninit: function () {
+          pInit = true
+          o(aInit).equals(false)
+          o(ulInit).equals(false)
+        },
+        onremove: function () {
+          pRemoved = true
+          o(aRemoved).equals(false)
+          o(ulRemoved).equals(false)
+        }
+      },
+      m(
+        'a',
+        {
+          oninit: function () {
+            aInit = true
+            o(pInit).equals(true)
+            o(ulInit).equals(false)
+          },
+          onremove: function () {
+            aRemoved = true
+            o(pRemoved).equals(true)
+            o(ulRemoved).equals(false)
+          }
+        },
+        'q'
+      )
+    ),
+    m(
+      'ul',
+      {
+        oninit: function () {
+          ulInit = true
+          o(pInit).equals(true)
+          o(aInit).equals(true)
+        },
+        onremove: function () {
+          ulRemoved = true
+          o(pRemoved).equals(true)
+          o(aRemoved).equals(true)
+        }
+      },
+      'r'
+    )
+  ])).equals('<p><a>q</a></p><ul>r</ul>')
+  o(pInit && ulInit && aInit &&
+    pRemoved && ulRemoved && aRemoved).equals(true)
+})
+
 o.run()
