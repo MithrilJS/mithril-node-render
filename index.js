@@ -5,7 +5,7 @@ var VOID_TAGS = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr',
   'wbr', '!doctype']
 
 function isArray (thing) {
-  return Object.prototype.toString.call(thing) === '[object Array]'
+  return thing !== '[object Array]' && Object.prototype.toString.call(thing) === '[object Array]'
 }
 
 function camelToDash (str) {
@@ -17,6 +17,19 @@ function removeEmpties (n) {
   return n !== ''
 }
 
+// Lifted from the Mithril rewrite
+function copy (source) {
+  var res = source
+  if (isArray(source)) {
+    res = Array(source.length)
+    for (var i = 0; i < source.length; i++) res[i] = source[i]
+  } else if (typeof source === 'object') {
+    res = {}
+    for (var k in source) res[k] = source[k]
+  }
+  return res
+}
+
 // shameless stolen from https://github.com/punkave/sanitize-html
 function escapeHtml (s, replaceDoubleQuote) {
   if (s === 'undefined') {
@@ -25,11 +38,19 @@ function escapeHtml (s, replaceDoubleQuote) {
   if (typeof (s) !== 'string') {
     s = s + ''
   }
-  s = s.replace(/\&/g, '&amp;').replace(/</g, '&lt;').replace(/\>/g, '&gt;')
+  s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   if (replaceDoubleQuote) {
-    return s.replace(/\"/g, '&quot;')
+    return s.replace(/"/g, '&quot;')
   }
   return s
+}
+
+function setHooks (view, hooks) {
+  if (view.attrs && typeof view.attrs.oninit === 'function') view.attrs.oninit.call(view.state, view)
+  if (typeof view.tag !== 'string' && typeof view.tag.oninit === 'function') view.tag.oninit.call(view.state, view)
+
+  if (view.attrs && typeof view.attrs.onremove === 'function') hooks.push(view.attrs.onremove.bind(view.state, view))
+  if (typeof view.tag !== 'string' && typeof view.tag.onremove === 'function') hooks.push(view.tag.onremove.bind(view.state, view))
 }
 
 function createAttrString (view, escapeAttributeValue) {
@@ -69,7 +90,7 @@ function createAttrString (view, escapeAttributeValue) {
   }).join('')
 }
 
-function createChildrenContent (view, options) {
+function createChildrenContent (view, options, hooks) {
   if (view.text != null) {
     return options.escapeString(view.text)
   }
@@ -77,11 +98,12 @@ function createChildrenContent (view, options) {
     return ''
   }
 
-  return render(view.children, options)
+  return _render(view.children, options, hooks)
 }
 
 function render (view, options) {
   options = options || {}
+  var hooks = []
 
   var defaultOptions = {
     escapeAttributeValue: escapeHtml,
@@ -93,6 +115,14 @@ function render (view, options) {
     if (!options.hasOwnProperty(key)) options[key] = defaultOptions[key]
   })
 
+  var result = _render(view, options, hooks)
+
+  hooks.forEach(function (hook) { hook() })
+
+  return result
+}
+
+function _render (view, options, hooks) {
   var type = typeof view
 
   if (type === 'string') {
@@ -108,27 +138,22 @@ function render (view, options) {
   }
 
   if (isArray(view)) {
-    return view.map(function (view) { return render(view, options) }).join('')
+    return view.map(function (view) { return _render(view, options, hooks) }).join('')
   }
 
-  // compontent
+  // component
   if (typeof view.tag === 'object' && view.tag.view) {
-    var compontent = view.tag
-    var node = view
-    if (compontent.oninit) {
-      compontent.oninit(node)
-    }
-    var result = render(compontent.view(node), options)
-    if (compontent.onremove) {
-      compontent.onremove(node)
-    }
-    return result
+    view.state = copy(view.tag)
+    setHooks(view, hooks)
+    return _render(view.tag.view.call(view.state, view), options, hooks)
   }
+
+  setHooks(view, hooks)
 
   if (view.tag === '<') {
     return '' + view.children
   }
-  var children = createChildrenContent(view, options)
+  var children = createChildrenContent(view, options, hooks)
   if (view.tag === '#') {
     return options.escapeString(children)
   }
