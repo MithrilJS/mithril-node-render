@@ -1,6 +1,8 @@
 'use strict'
 
-var VOID_TAGS = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr',
+const m = require('mithril/hyperscript')
+
+const VOID_TAGS = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr',
   'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track',
   'wbr', '!doctype']
 
@@ -105,8 +107,13 @@ function createChildrenContent (view, options, hooks) {
   return _render(view.children, options, hooks)
 }
 
-function render (view, options) {
+function render (view, attrs, options) {
   options = options || {}
+  if (view.view) { // root component
+    view = m(view, attrs)
+  } else {
+    options = attrs || {}
+  }
   var hooks = []
 
   var defaultOptions = {
@@ -164,9 +171,14 @@ function _render (view, options, hooks) {
     setHooks(view.attrs, view, hooks)
   }
 
-  if (component) {
-    setHooks(component, vnode, hooks)
-    return _render(component.view.call(vnode.state, vnode), options, hooks)
+  // component
+  if (isObject(view.tag)) {
+    var vnode = {
+      state: copy(view.tag),
+      attrs: view.attrs
+    }
+    setHooks(view.tag, vnode, hooks)
+    return _render(view.tag.view.call(vnode.state, vnode), options, hooks)
   }
 
   if (view.tag === '<') {
