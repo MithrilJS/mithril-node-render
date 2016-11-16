@@ -44,37 +44,49 @@ o('render', function () {
 })
 
 o('components', function () {
-  var onremove = o.spy()
-  var myComponent = {
-    oninit: function (node) {
-      node.state = {
-        foo: 'bar'
+  var myComponent, onremove
+
+  o.beforeEach(function () {
+    onremove = o.spy()
+    myComponent = {
+      oninit: function (node) {
+        node.state = {
+          foo: 'bar'
+        }
+      },
+      onremove: onremove,
+      view: function (node) {
+        return m('div', [
+          'hello',
+          node.state.foo,
+          node.attrs.foo
+        ])
       }
-    },
-    onremove: onremove,
-    view: function (node) {
-      return m('div', [
-        'hello',
-        node.state.foo,
-        node.attrs.foo
-      ])
     }
-  }
-  o(onremove.callCount).equals(0)
-  o(render(m('div', m(myComponent)))).equals('<div><div>hellobar</div></div>')
-  o(onremove.callCount).equals(1)
-  o(render(m('span', m(myComponent, {foo: 'foz'})))).equals('<span><div>hellobarfoz</div></span>')
-  o(render(m('div', m({
-    oninit: function () {},
-    view: function () {
-      return m('span', 'huhu')
-    }
-  })))).equals('<div><span>huhu</span></div>')
-  o(render(m('div', m({
-    view: function () {
-      return m('span', 'huhu')
-    }
-  })))).equals('<div><span>huhu</span></div>')
+  })
+
+  o('embedded', function () {
+    o(onremove.callCount).equals(0)
+    o(render(m('div', m(myComponent)))).equals('<div><div>hellobar</div></div>')
+    o(onremove.callCount).equals(1)
+    o(render(m('span', m(myComponent, {foo: 'foz'})))).equals('<span><div>hellobarfoz</div></span>')
+    o(render(m('div', m({
+      oninit: function () {},
+      view: function () {
+        return m('span', 'huhu')
+      }
+    })))).equals('<div><span>huhu</span></div>')
+    o(render(m('div', m({
+      view: function () {
+        return m('span', 'huhu')
+      }
+    })))).equals('<div><span>huhu</span></div>')
+  })
+
+  o('as root', function () {
+    o(render(myComponent)).equals('<div>hellobar</div>')
+    o(render(myComponent, { attrs: { foo: '-attr-foo' } })).equals('<div>hellobar-attr-foo</div>')
+  })
 })
 
 o('`this` in component', function () {

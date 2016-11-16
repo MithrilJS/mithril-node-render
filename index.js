@@ -8,6 +8,10 @@ function isArray (thing) {
   return thing !== '[object Array]' && Object.prototype.toString.call(thing) === '[object Array]'
 }
 
+function isObject (thing) {
+  return typeof thing === 'object'
+}
+
 function camelToDash (str) {
   return str.replace(/\W+/g, '-')
     .replace(/([a-z\d])([A-Z])/g, '$1-$2')
@@ -45,12 +49,13 @@ function escapeHtml (s, replaceDoubleQuote) {
   return s
 }
 
-function setHooks (view, hooks) {
-  if (view.attrs && typeof view.attrs.oninit === 'function') view.attrs.oninit.call(view.state, view)
-  if (typeof view.tag !== 'string' && typeof view.tag.oninit === 'function') view.tag.oninit.call(view.state, view)
-
-  if (view.attrs && typeof view.attrs.onremove === 'function') hooks.push(view.attrs.onremove.bind(view.state, view))
-  if (typeof view.tag !== 'string' && typeof view.tag.onremove === 'function') hooks.push(view.tag.onremove.bind(view.state, view))
+function setHooks (component, vnode, hooks) {
+  if (component.oninit) {
+    component.oninit.call(vnode.state, vnode)
+  }
+  if (component.onremove) {
+    hooks.push(component.onremove.bind(vnode.state, vnode))
+  }
 }
 
 function createAttrString (view, escapeAttributeValue) {
@@ -73,7 +78,7 @@ function createAttrString (view, escapeAttributeValue) {
         return
       }
       var styles = attrs.style
-      if (typeof styles === 'object') {
+      if (isObject(styles)) {
         styles = Object.keys(styles).map(function (property) {
           return styles[property] !== '' ? [camelToDash(property).toLowerCase(), styles[property]].join(':') : ''
         }).filter(removeEmpties).join(';')
@@ -141,14 +146,29 @@ function _render (view, options, hooks) {
     return view.map(function (view) { return _render(view, options, hooks) }).join('')
   }
 
-  // component
-  if (typeof view.tag === 'object' && view.tag.view) {
-    view.state = copy(view.tag)
-    setHooks(view, hooks)
-    return _render(view.tag.view.call(view.state, view), options, hooks)
+  var component, vnode
+  if (isObject(view.tag)) { // embedded component
+    component = view.tag
+    vnode = {
+      state: copy(component),
+      attrs: {}
+    }
+  } else if (view.view) { // root component
+    component = view
+    vnode = {
+      state: copy(component),
+      attrs: options.attrs || {}
+    }
   }
 
-  setHooks(view, hooks)
+  if (view.attrs) {
+    setHooks(view.attrs, view, hooks)
+  }
+
+  if (component) {
+    setHooks(component, vnode, hooks)
+    return _render(component.view.call(vnode.state, vnode), options, hooks)
+  }
 
   if (view.tag === '<') {
     return '' + view.children
