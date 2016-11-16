@@ -85,7 +85,7 @@ o.spec('components', function () {
 
   o('as root', function () {
     o(render(myComponent)).equals('<div>hellobar</div>')
-    o(render(myComponent, { attrs: { foo: '-attr-foo' } })).equals('<div>hellobar-attr-foo</div>')
+    o(render(myComponent, { foo: '-attr-foo' })).equals('<div>hellobar-attr-foo</div>')
   })
 })
 
