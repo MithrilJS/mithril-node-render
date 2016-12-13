@@ -102,7 +102,6 @@ function createChildrenContent (view, options, hooks) {
   if (isArray(view.children) && !view.children.length) {
     return ''
   }
-
   return _render(view.children, options, hooks)
 }
 
@@ -151,7 +150,7 @@ function _render (view, options, hooks) {
     component = view.tag
     vnode = {
       state: copy(component),
-      attrs: {}
+      attrs: view.attrs || {}
     }
   } else if (view.view) { // root component
     component = view
