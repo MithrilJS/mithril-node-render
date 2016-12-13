@@ -51,10 +51,12 @@ function escapeHtml (s, replaceDoubleQuote) {
 
 function setHooks (component, vnode, hooks) {
   if (component.oninit) {
-    component.oninit.call(vnode.state, vnode)
+    //component.oninit.call(vnode.state, vnode)
+    component.oninit.call(vnode)
   }
   if (component.onremove) {
-    hooks.push(component.onremove.bind(vnode.state, vnode))
+    //hooks.push(component.onremove.bind(vnode.state, vnode))
+    hooks.push(component.onremove.bind(vnode))
   }
 }
 
