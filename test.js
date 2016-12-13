@@ -43,7 +43,7 @@ o('render', function () {
   o(render(m('div'), {strict: true})).equals('<div/>')('should render closed div-tag')
 })
 
-o('components', function () {
+o.spec('components', function () {
   var myComponent, onremove
 
   o.beforeEach(function () {
