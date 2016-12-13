@@ -87,6 +87,23 @@ o.spec('components', function () {
     o(render(myComponent)).equals('<div>hellobar</div>')
     o(render(myComponent, { foo: '-attr-foo' })).equals('<div>hellobar-attr-foo</div>')
   })
+
+  o('with children', function() {
+    var parentComponent = {
+      view: function(node) {
+        return m('div', node.children)
+      }
+    }
+
+    o(render(m(parentComponent, 'howdy'))).equals('<div>howdy</div>')
+    o(render(m(parentComponent, m('span', 'howdy')))).equals('<div><span>howdy</span></div>')
+    o(render(m(parentComponent, [
+      m('span', 'foo'),
+      m('span', 'bar')
+    ]))).equals('<div><span>foo</span><span>bar</span></div>')
+    o(render(m(parentComponent, m.trust('<span>trust me</span>')))).equals('<div><span>trust me</span></div>')
+    o(render(m(parentComponent, m(myComponent, { foo: 'foz' })))).equals('<div><div>hellobarfoz</div></div>')
+  })
 })
 
 o('`this` in component', function () {

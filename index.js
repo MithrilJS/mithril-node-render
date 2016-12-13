@@ -157,12 +157,14 @@ function _render (view, options, hooks) {
     component = view.tag
     vnode = {
       state: copy(component),
+      children: copy(view.children),
       attrs: view.attrs || {}
     }
   } else if (view.view) { // root component
     component = view
     vnode = {
       state: copy(component),
+      children: copy(view.children),
       attrs: options.attrs || {}
     }
   }
@@ -175,6 +177,7 @@ function _render (view, options, hooks) {
   if (isObject(view.tag)) {
     var vnode = {
       state: copy(view.tag),
+      children: copy(view.children),
       attrs: view.attrs
     }
     setHooks(view.tag, vnode, hooks)
