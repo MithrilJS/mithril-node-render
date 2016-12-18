@@ -1,10 +1,10 @@
 {
   "name": "mithril-node-render",
-  "version": "0.5.0",
+  "version": "1.0.1-4",
   "description": "Node rending of mithril views",
   "main": "index.js",
   "scripts": {
-    "test": "tape test.js"
+    "test": "node test.js"
   },
   "repository": {
     "type": "git",
@@ -23,7 +23,6 @@
   },
   "homepage": "https://github.com/StephanHoyer/mithril-node-render",
   "devDependencies": {
-    "mithril": "0.2.5",
-    "tape": "4.6.3"
+    "mithril": "1.0.0-rc.6"
   }
 }
