@@ -107,7 +107,7 @@ o.spec('components', function () {
       o(x).equals('<div>hellobar</div>')
     })
     render(myComponent, { foo: '-attr-foo' }).then(function(x) {
-      o(x).equals('<div>hellobar</div>')
+      o(x).equals('<div>hellobar-attr-foo</div>')
       done()
     })
   })
