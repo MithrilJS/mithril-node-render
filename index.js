@@ -151,7 +151,6 @@ function _render (view, options, hooks) {
     }
 
     if (isArray(view)) {
-      //return view.map(function (view) { return _render(view, options, hooks) }).join('')
       var promises = view.map(function (view) { return _render(view, options, hooks) })
       Promise.all(promises)
         .then(function(x) {
@@ -178,16 +177,16 @@ function _render (view, options, hooks) {
       if (view.attrs) {
         setHooks(view.attrs, view, hooks)
           .then(function() {
-            _foo(view, vnode, options, hooks)
+            _renderSubComponent(resolve, view, vnode, options, hooks)
           })
       } else {
-        _foo(view, vnode, options, hooks)
+        _renderSubComponent(resolve, view, vnode, options, hooks)
       }
     }
   })
 }
 
-function _foo (view, vnode, options, hooks) {
+function _renderSubComponent (resolve, view, vnode, options, hooks) {
     // component
     if (isObject(view.tag)) {
       var vnode = {
@@ -200,7 +199,6 @@ function _foo (view, vnode, options, hooks) {
           return _render(view.tag.view.call(vnode.state, vnode), options, hooks)
         })
         .then(function(x) {
-          console.log('sethooks _render return', x)
           resolve(x)
         })
     } else {
