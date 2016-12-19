@@ -43,12 +43,12 @@ var Component = {
     });
   },
   view: function (vnode) {
-    return m('div', vnode.state.foo); //<div>bar</div>
+    return m('div', vnode.state.foo);
   }
 };
 
-render(m('span', 'huhu')).then(function(x) {
-  console.log(x) //<span>huhu</span>
+render(m(Component)).then(function(x) {
+  console.log(x) //<div>bar</div>
 })
 ```
 
