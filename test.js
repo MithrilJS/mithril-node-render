@@ -4,43 +4,56 @@ var o = require('mithril/ospec/ospec')
 var m = require('mithril/render/hyperscript')
 var mTrust = require('mithril/render/trust')
 var render = require('./index')
+var co = require('co')
 
-o('render', function () {
-  o(render(m('span', 'content'))).equals('<span>content</span>')('should render tag')
-  o(render(m('.foo', 'content'))).equals('<div class="foo">content</div>')('should render classname')
-  o(render(m('#bar', 'content'))).equals('<div id="bar">content</div>')('should render id')
-  o(render(m('br'))).equals('<br>')('should render short nodes when no children')
-  o(render(m('HR'))).equals('<HR>')('should render short nodes when no children and tag name is uppercase')
-  o(render(m('!doctype'))).equals('<!doctype>')('should render short node doctype')
-  o(render(m('!doctype', {html: true}))).equals('<!doctype html>')('should render short node doctype HTML5')
-  o(render(m('span', { 'data-foo': 'bar', selected: 'selected' }))).equals('<span data-foo="bar" selected="selected"></span>')('should render attributes')
-  o(render(m('ul', 'huhu'))).equals('<ul>huhu</ul>')('should render string')
-  o(render([m('span', 'foo'), m('div', 'bar')])).equals('<span>foo</span><div>bar</div>')('should render arrays')
-  o(render(m('div', [[m('span', 'foo'), m('div', 'bar')]]))).equals('<div><span>foo</span><div>bar</div></div>')('should render nested arrays')
-  o(render(m('span', m('div')))).equals('<span><div></div></span>')('should render children')
-  o(render(m('span', { onmousemove: function (event) {} }))).equals('<span></span>')('should not render events')
-  o(render(m('span', { style: { paddingLeft: '10px', color: 'red' } }))).equals('<span style="padding-left:10px;color:red"></span>')('should render children')
-  o(render(m('div', [ 1, m('span'), '2' ]))).equals('<div>1<span></span>2</div>')('should render numbers as text nodes')
-  o(render(m('div', 0))).equals('<div>0</div>')
-  o(render(m('div', false))).equals('<div>false</div>')
-  o(render(m('div', { a: true }))).equals('<div a></div>')
-  o(render(m('div', { a: false }))).equals('<div></div>')
-  o(render(m('div', { a: undefined }))).equals('<div></div>')
-  o(render(m('div', { style: null }))).equals('<div></div>')
-  o(render(m('div', { style: '' }))).equals('<div></div>')
-  o(render(m('div', { style: { color: '' } }))).equals('<div></div>')
-  o(render(m('div', { style: { height: '20px', color: '' } }))).equals('<div style="height:20px"></div>')
-  o(render(m('div', { style: { height: '20px', color: '', width: '10px' } }))).equals('<div style="height:20px;width:10px"></div>')
-  o(render(m('div', { a: 'foo' }))).equals('<div a="foo"></div>')
-  o(render(m('div', mTrust('<foo></foo>')))).equals('<div><foo></foo></div>')
-  o(render(m('div', '<foo></foo>'))).equals('<div>&lt;foo&gt;&lt;/foo&gt;</div>')
-  o(render(m('div', { style: '"></div><div a="' }))).equals('<div style="&quot;&gt;&lt;/div&gt;&lt;div a=&quot;"></div>')
-  o(render(m('div', { style: '"></div><div a="' }), { escapeAttributeValue: function (value) { return value } })).equals('<div style=""></div><div a=""></div>')
+o.async = function async (desc, genFn) {
+  o(desc, function (done) {
+    co(genFn).then(done)
+  })
+}
+
+o.async.only = function async (desc, genFn) {
+  o.only(desc, function (done) {
+    co(genFn).then(done)
+  })
+}
+
+o.async('render', function * () {
+  o(yield render(m('span', 'content'))).equals('<span>content</span>')('should render tag')
+  o(yield render(m('.foo', 'content'))).equals('<div class="foo">content</div>')('should render classname')
+  o(yield render(m('#bar', 'content'))).equals('<div id="bar">content</div>')('should render id')
+  o(yield render(m('br'))).equals('<br>')('should render short nodes when no children')
+  o(yield render(m('HR'))).equals('<HR>')('should render short nodes when no children and tag name is uppercase')
+  o(yield render(m('!doctype'))).equals('<!doctype>')('should render short node doctype')
+  o(yield render(m('!doctype', {html: true}))).equals('<!doctype html>')('should render short node doctype HTML5')
+  o(yield render(m('span', { 'data-foo': 'bar', selected: 'selected' }))).equals('<span data-foo="bar" selected="selected"></span>')('should render attributes')
+  o(yield render(m('ul', 'huhu'))).equals('<ul>huhu</ul>')('should render string')
+  o(yield render([m('span', 'foo'), m('div', 'bar')])).equals('<span>foo</span><div>bar</div>')('should render arrays')
+  o(yield render(m('div', [[m('span', 'foo'), m('div', 'bar')]]))).equals('<div><span>foo</span><div>bar</div></div>')('should render nested arrays')
+  o(yield render(m('span', m('div')))).equals('<span><div></div></span>')('should render children')
+  o(yield render(m('span', { onmousemove: function (event) {} }))).equals('<span></span>')('should not render events')
+  o(yield render(m('span', { style: { paddingLeft: '10px', color: 'red' } }))).equals('<span style="padding-left:10px;color:red"></span>')('should render children')
+  o(yield render(m('div', [ 1, m('span'), '2' ]))).equals('<div>1<span></span>2</div>')('should render numbers as text nodes')
+  o(yield render(m('div', 0))).equals('<div>0</div>')
+  o(yield render(m('div', false))).equals('<div>false</div>')
+  o(yield render(m('div', { a: true }))).equals('<div a></div>')
+  o(yield render(m('div', { a: false }))).equals('<div></div>')
+  o(yield render(m('div', { a: undefined }))).equals('<div></div>')
+  o(yield render(m('div', { style: null }))).equals('<div></div>')
+  o(yield render(m('div', { style: '' }))).equals('<div></div>')
+  o(yield render(m('div', { style: { color: '' } }))).equals('<div></div>')
+  o(yield render(m('div', { style: { height: '20px', color: '' } }))).equals('<div style="height:20px"></div>')
+  o(yield render(m('div', { style: { height: '20px', color: '', width: '10px' } }))).equals('<div style="height:20px;width:10px"></div>')
+  o(yield render(m('div', { a: 'foo' }))).equals('<div a="foo"></div>')
+  o(yield render(m('div', mTrust('<foo></foo>')))).equals('<div><foo></foo></div>')
+  o(yield render(m('div', '<foo></foo>'))).equals('<div>&lt;foo&gt;&lt;/foo&gt;</div>')
+  o(yield render(m('div', { style: '"></div><div a="' }))).equals('<div style="&quot;&gt;&lt;/div&gt;&lt;div a=&quot;"></div>')
+  o(yield render(m('div', { style: '"></div><div a="' }), { escapeAttributeValue: function (value) { return value } })).equals('<div style=""></div><div a=""></div>')
   o(typeof render.escapeHtml).equals('function')
-  o(render(m('pre', 'var = ' + JSON.stringify({foo: 1})))).equals('<pre>var = {"foo":1}</pre>')
-  o(render(m('svg', m('use', { href: 'fooga.com' })))).equals('<svg><use xlink:href="fooga.com"></use></svg>')
-  o(render(m('input'), {strict: true})).equals('<input/>')('should render closed input-tag')
-  o(render(m('div'), {strict: true})).equals('<div/>')('should render closed div-tag')
+  o(yield render(m('pre', 'var = ' + JSON.stringify({foo: 1})))).equals('<pre>var = {"foo":1}</pre>')
+  o(yield render(m('svg', m('use', { href: 'fooga.com' })))).equals('<svg><use xlink:href="fooga.com"></use></svg>')
+  o(yield render(m('input'), {strict: true})).equals('<input/>')('should render closed input-tag')
+  o(yield render(m('div'), {strict: true})).equals('<div/>')('should render closed div-tag')
 })
 
 o.spec('components', function () {
@@ -65,48 +78,48 @@ o.spec('components', function () {
     }
   })
 
-  o('embedded', function () {
+  o.async('embedded', function * () {
     o(onremove.callCount).equals(0)
-    o(render(m('div', m(myComponent)))).equals('<div><div>hellobar</div></div>')
+    o(yield render(m('div', m(myComponent)))).equals('<div><div>hellobar</div></div>')
     o(onremove.callCount).equals(1)
-    o(render(m('span', m(myComponent, {foo: 'foz'})))).equals('<span><div>hellobarfoz</div></span>')
-    o(render(m('div', m({
+    o(yield render(m('span', m(myComponent, {foo: 'foz'})))).equals('<span><div>hellobarfoz</div></span>')
+    o(yield render(m('div', m({
       oninit: function () {},
       view: function () {
         return m('span', 'huhu')
       }
     })))).equals('<div><span>huhu</span></div>')
-    o(render(m('div', m({
+    o(yield render(m('div', m({
       view: function () {
         return m('span', 'huhu')
       }
     })))).equals('<div><span>huhu</span></div>')
   })
 
-  o('as root', function () {
-    o(render(myComponent)).equals('<div>hellobar</div>')
-    o(render(myComponent, { foo: '-attr-foo' })).equals('<div>hellobar-attr-foo</div>')
+  o.async('as root', function * () {
+    o(yield render(myComponent)).equals('<div>hellobar</div>')
+    o(yield render(myComponent, { foo: '-attr-foo' })).equals('<div>hellobar-attr-foo</div>')
   })
 
-  o('with children', function() {
+  o.async('with children', function * () {
     var parentComponent = {
-      view: function(node) {
+      view: function (node) {
         return m('div', node.children)
       }
     }
 
-    o(render(m(parentComponent, 'howdy'))).equals('<div>howdy</div>')
-    o(render(m(parentComponent, m('span', 'howdy')))).equals('<div><span>howdy</span></div>')
-    o(render(m(parentComponent, [
+    o(yield render(m(parentComponent, 'howdy'))).equals('<div>howdy</div>')
+    o(yield render(m(parentComponent, m('span', 'howdy')))).equals('<div><span>howdy</span></div>')
+    o(yield render(m(parentComponent, [
       m('span', 'foo'),
       m('span', 'bar')
     ]))).equals('<div><span>foo</span><span>bar</span></div>')
-    o(render(m(parentComponent, m.trust('<span>trust me</span>')))).equals('<div><span>trust me</span></div>')
-    o(render(m(parentComponent, m(myComponent, { foo: 'foz' })))).equals('<div><div>hellobarfoz</div></div>')
+    o(yield render(m(parentComponent, m.trust('<span>trust me</span>')))).equals('<div><span>trust me</span></div>')
+    o(yield render(m(parentComponent, m(myComponent, { foo: 'foz' })))).equals('<div><div>hellobarfoz</div></div>')
   })
 })
 
-o('`this` in component', function () {
+o.async('`this` in component', function * () {
   var oninit = o.spy()
   var myComponent = {
     oninit: function (vnode) {
@@ -126,14 +139,14 @@ o('`this` in component', function () {
     bar: 4
   }
 
-  o(render([m(myComponent), m(myComponent)])).equals('<div>hello</div><div>hello</div>')
+  o(yield render([m(myComponent), m(myComponent)])).equals('<div>hello</div><div>hello</div>')
 
   o(oninit.callCount).equals(2)('the component should have been initialized twice')
 })
 
-o('lifecycle hooks as attributes on elements', function () {
+o.async('lifecycle hooks as attributes on elements', function * () {
   var initialized, removed
-  render(m('p', {
+  yield render(m('p', {
     oninit: function (vnode) {
       initialized = true
       o(this).equals(vnode.state)('vnode.state should be the context in `oninit`')
@@ -147,7 +160,7 @@ o('lifecycle hooks as attributes on elements', function () {
   o(removed).equals(true)('attr.onremove should run')
 })
 
-o('lifecycle hooks as attributes on components', function () {
+o.async('lifecycle hooks as attributes on components', function * () {
   var attrInitialized, attrRemoved, tagInitialized, tagRemoved
   var myComponent = {
     oninit: function () {
@@ -160,7 +173,7 @@ o('lifecycle hooks as attributes on components', function () {
       tagRemoved = true
     }
   }
-  o(render(m(myComponent, {
+  o(yield render(m(myComponent, {
     oninit: function (vnode) {
       o(this).equals(vnode.state)('vnode.state should be the context in `attr.oninit`')
       attrInitialized = true
@@ -174,7 +187,7 @@ o('lifecycle hooks as attributes on components', function () {
   o(tagRemoved).equals(true)('tag.onremove should be called')
 })
 
-o('onremove hooks should be called once the whole tree has been inititalized', function () {
+o.async('onremove hooks should be called once the whole tree has been inititalized', function * () {
   var initialized = 0
   var onremove = o.spy()
   function oninit () {
@@ -189,7 +202,7 @@ o('onremove hooks should be called once the whole tree has been inititalized', f
     },
     onremove: onremove
   }
-  o(render([m(myComponent, attrs), m(myComponent, attrs)]))
+  o(yield render([m(myComponent, attrs), m(myComponent, attrs)]))
 
   /*
   We just rendered two components, and each has three sets of hooks defined:
@@ -200,7 +213,7 @@ o('onremove hooks should be called once the whole tree has been inititalized', f
   o(onremove.callCount).equals(6)('onremove should run six times')
 })
 
-o('hooks are called top-down, depth-first on elements', function () {
+o.async('hooks are called top-down, depth-first on elements', function * () {
   /*
    Suppose a tree with the following structure: two levels of depth,
    two components on the first depth level, the first one having a
@@ -218,7 +231,7 @@ o('hooks are called top-down, depth-first on elements', function () {
   var pRemoved = false
   var aRemoved = false
   var ulRemoved = false
-  o(render([
+  var html = yield render([
     m(
       'p',
       {
@@ -266,9 +279,36 @@ o('hooks are called top-down, depth-first on elements', function () {
       },
       'r'
     )
-  ])).equals('<p><a>q</a></p><ul>r</ul>')
+  ])
+  o(html).equals('<p><a>q</a></p><ul>r</ul>')
   o(pInit && ulInit && aInit &&
     pRemoved && ulRemoved && aRemoved).equals(true)
+})
+
+o.spec('async', function () {
+  var myAsyncComponent
+  o.beforeEach(function () {
+    myAsyncComponent = {
+      oninit: function (node) {
+        return new Promise(resolve => {
+          node.state = {
+            foo: 'bar'
+          }
+          resolve()
+        })
+      },
+      view: function (node) {
+        return m('div', [
+          node.state.foo
+        ])
+      }
+    }
+  })
+
+  o.async('render', function * () {
+    const html = yield render(myAsyncComponent)
+    o(html).equals('<div>bar</div>')
+  })
 })
 
 o.run()
