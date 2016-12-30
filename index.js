@@ -52,12 +52,11 @@ function escapeHtml (s, replaceDoubleQuote) {
 }
 
 function setHooks (component, vnode, hooks) {
-  if (component.oninit) {
-    component.oninit.call(vnode.state, vnode)
-  }
   if (component.onremove) {
     hooks.push(component.onremove.bind(vnode.state, vnode))
   }
+  var oninit = (component.oninit || function () {}).bind(vnode.state, vnode)
+  return Promise.resolve(oninit())
 }
 
 function createAttrString (view, escapeAttributeValue) {
@@ -99,109 +98,135 @@ function createAttrString (view, escapeAttributeValue) {
 
 function createChildrenContent (view, options, hooks) {
   if (view.text != null) {
-    return options.escapeString(view.text)
+    return Promise.resolve(options.escapeString(view.text))
   }
   if (isArray(view.children) && !view.children.length) {
-    return ''
+    return Promise.resolve('')
   }
   return _render(view.children, options, hooks)
 }
 
 function render (view, attrs, options) {
-  options = options || {}
-  if (view.view) { // root component
-    view = m(view, attrs)
-  } else {
-    options = attrs || {}
-  }
-  var hooks = []
+  return new Promise(function (resolve, reject) {
+    options = options || {}
+    if (view.view) { // root component
+      view = m(view, attrs)
+    } else {
+      options = attrs || {}
+    }
+    var hooks = []
 
-  var defaultOptions = {
-    escapeAttributeValue: escapeHtml,
-    escapeString: escapeHtml,
-    strict: false
-  }
+    var defaultOptions = {
+      escapeAttributeValue: escapeHtml,
+      escapeString: escapeHtml,
+      strict: false
+    }
 
-  Object.keys(defaultOptions).forEach(function (key) {
-    if (!options.hasOwnProperty(key)) options[key] = defaultOptions[key]
+    Object.keys(defaultOptions).forEach(function (key) {
+      if (!options.hasOwnProperty(key)) options[key] = defaultOptions[key]
+    })
+
+    _render(view, options, hooks)
+      .then(function (x) {
+        hooks.forEach(function (hook) { hook() })
+        resolve(x)
+      })
   })
-
-  var result = _render(view, options, hooks)
-
-  hooks.forEach(function (hook) { hook() })
-
-  return result
 }
 
 function _render (view, options, hooks) {
-  var type = typeof view
+  return new Promise(function (resolve, reject) {
+    var type = typeof view
 
-  if (type === 'string') {
-    return options.escapeString(view)
-  }
-
-  if (type === 'number' || type === 'boolean') {
-    return view
-  }
-
-  if (!view) {
-    return ''
-  }
-
-  if (isArray(view)) {
-    return view.map(function (view) { return _render(view, options, hooks) }).join('')
-  }
-
-  var component, vnode
-  if (isObject(view.tag)) { // embedded component
-    component = view.tag
-    vnode = {
-      state: copy(component),
-      children: copy(view.children),
-      attrs: view.attrs || {}
+    if (type === 'string') {
+      return resolve(options.escapeString(view))
     }
-  } else if (view.view) { // root component
-    component = view
-    vnode = {
-      state: copy(component),
-      children: copy(view.children),
-      attrs: options.attrs || {}
+
+    if (type === 'number' || type === 'boolean') {
+      return resolve(view)
     }
-  }
 
-  if (view.attrs) {
-    setHooks(view.attrs, view, hooks)
-  }
+    if (!view) {
+      return resolve('')
+    }
 
+    if (isArray(view)) {
+      var promises = view.map(function (view) { return _render(view, options, hooks) })
+      Promise.all(promises)
+        .then(function (x) {
+          resolve(x.join(''))
+        })
+    } else {
+      var component, vnode
+      if (isObject(view.tag)) { // embedded component
+        component = view.tag
+        vnode = {
+          state: copy(component),
+          children: copy(view.children),
+          attrs: view.attrs || {}
+        }
+      } else if (view.view) { // root component
+        component = view
+        vnode = {
+          state: copy(component),
+          children: copy(view.children),
+          attrs: options.attrs || {}
+        }
+      }
+
+      if (view.attrs) {
+        setHooks(view.attrs, view, hooks)
+          .then(function () {
+            _renderSubComponent(resolve, view, vnode, options, hooks)
+          })
+      } else {
+        _renderSubComponent(resolve, view, vnode, options, hooks)
+      }
+    }
+  })
+}
+
+function _renderSubComponent (resolve, view, vnode, options, hooks) {
   // component
   if (isObject(view.tag)) {
-    var vnode = {
+    vnode = {
       state: copy(view.tag),
       children: copy(view.children),
       attrs: view.attrs
     }
     setHooks(view.tag, vnode, hooks)
-    return _render(view.tag.view.call(vnode.state, vnode), options, hooks)
-  }
+      .then(function () {
+        return _render(view.tag.view.call(vnode.state, vnode), options, hooks)
+      })
+      .then(function (x) {
+        resolve(x)
+      })
+  } else {
+    if (view.tag === '<') {
+      return resolve('' + view.children)
+    }
 
-  if (view.tag === '<') {
-    return '' + view.children
+    createChildrenContent(view, options, hooks)
+      .then(function (children) {
+        if (view.tag === '#') {
+          return options.escapeString(children)
+        }
+        if (view.tag === '[') {
+          return '' + children
+        }
+        if (!children && (options.strict || VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0)) {
+          return '<' + view.tag + createAttrString(view, options.escapeAttributeValue) + (options.strict ? '/' : '') + '>'
+        }
+        return [
+          '<', view.tag, createAttrString(view, options.escapeAttributeValue), '>',
+          children,
+          '</', view.tag, '>'
+        ].join('')
+      })
+      .then(function (result) {
+        resolve(result)
+      })
   }
-  var children = createChildrenContent(view, options, hooks)
-  if (view.tag === '#') {
-    return options.escapeString(children)
-  }
-  if (view.tag === '[') {
-    return '' + children
-  }
-  if (!children && (options.strict || VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0)) {
-    return '<' + view.tag + createAttrString(view, options.escapeAttributeValue) + (options.strict ? '/' : '') + '>'
-  }
-  return [
-    '<', view.tag, createAttrString(view, options.escapeAttributeValue), '>',
-    children,
-    '</', view.tag, '>'
-  ].join('')
 }
 
 render.escapeHtml = escapeHtml
