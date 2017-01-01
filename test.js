@@ -290,24 +290,34 @@ o.spec('async', function () {
   o.beforeEach(function () {
     myAsyncComponent = {
       oninit: function (node) {
-        return new Promise(resolve => {
-          node.state = {
-            foo: 'bar'
-          }
-          resolve()
+        return new Promise(function (resolve) {
+          node.state.foo = 'bar'
+          setTimeout(resolve, 10)
         })
       },
       view: function (node) {
-        return m('div', [
-          node.state.foo
-        ])
+        return m('div', node.state.foo)
       }
     }
   })
 
-  o.async('render', function * () {
+  o.async('render components', function * () {
     const html = yield render(myAsyncComponent)
     o(html).equals('<div>bar</div>')
+  })
+
+  o.async('render nodes', function * () {
+    var oninitSpy = o.spy()
+    const html = yield render(m('span', {
+      oninit: function (node) {
+        return new Promise(resolve => {
+          oninitSpy()
+          setTimeout(resolve, 10)
+        })
+      }
+    }, 'foo'))
+    o(html).equals('<span>foo</span>')
+    o(oninitSpy.callCount).equals(1)
   })
 })
 

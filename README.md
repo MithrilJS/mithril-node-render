@@ -1,7 +1,10 @@
 Attention!
 ==========
 
-If you're using mithril v1.0 (rewrite) you have to use the appropriate [version](https://github.com/StephanHoyer/mithril-node-render/tree/rewrite) of mithril-node-render.
+This is the documenation for the version of mithril-node-render for mithril v1.0
+(rewrite).
+[Here](https://github.com/StephanHoyer/mithril-node-render/) you can find the
+version for the current version of mithril (0.2.x).
 
 mithril-node-render
 ===================
@@ -13,6 +16,13 @@ mithril-node-render
 
 Use mithril views to render server side
 
+Installation
+------------
+
+```
+npm install mithril-node-render@rewrite
+```
+
 Usage
 -----
 
@@ -20,8 +30,36 @@ Usage
 var m = require('mithril');
 var render = require('mithril-node-render');
 
-render(m('span', 'huhu')) //<span>huhu</span>
+render(m('span', 'huhu')).then(function (html) {
+  // html === '<span>huhu</span>'
+})
 ```
+
+Async components
+----------------
+
+As you see the rendering is asyncronous. It waits for resolve of all promises
+that might get returned from `oninit` callbacks.
+
+```javascript
+  myAsyncComponent = {
+    oninit: function (node) {
+      return new Promise(function (resolve) {
+        node.state.foo = 'bar'
+        resolve()
+      })
+    },
+    view: function (node) {
+      return m('div', node.state.foo)
+    }
+  }
+
+  // usage
+  render(myAsyncComponent).then(function (html) {
+    // html === '<div>bar</div>'
+  }
+```
+
 
 Options
 -------
