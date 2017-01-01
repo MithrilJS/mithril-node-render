@@ -1,3 +1,8 @@
+Attention!
+==========
+
+If you're using mithril v1.0 (rewrite) you have to use the appropriate [version](https://github.com/StephanHoyer/mithril-node-render/tree/rewrite) of mithril-node-render.
+
 mithril-node-render
 ===================
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/StephanHoyer/mithril-node-render?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
