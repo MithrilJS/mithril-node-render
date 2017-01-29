@@ -26,7 +26,8 @@ function removeEmpties (n) {
   return n !== ''
 }
 
-function omit (source, keys = []) {
+function omit (source, keys) {
+  keys = keys || []
   var res = {}
   for (var k in source) {
     if (keys.indexOf(k) < 0) {
