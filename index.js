@@ -7,6 +7,8 @@ const VOID_TAGS = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr',
   'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track',
   'wbr', '!doctype']
 
+const COMPONENT_PROPS = ['oninit', 'view', 'oncreate', 'onbeforeupdate', 'onupdate', 'onbeforeremove', 'onremove']
+
 function isArray (thing) {
   return thing !== '[object Array]' && Object.prototype.toString.call(thing) === '[object Array]'
 }
@@ -24,18 +26,17 @@ function removeEmpties (n) {
   return n !== ''
 }
 
-// Lifted from the Mithril rewrite
-function copy (source) {
-  var res = source
-  if (isArray(source)) {
-    res = Array(source.length)
-    for (var i = 0; i < source.length; i++) res[i] = source[i]
-  } else if (typeof source === 'object') {
-    res = {}
-    for (var k in source) res[k] = source[k]
+function omit (source, keys = []) {
+  var res = {}
+  for (var k in source) {
+    if (keys.indexOf(k) < 0) {
+      res[k] = source[k]
+    }
   }
   return res
 }
+
+const copy = omit
 
 // shameless stolen from https://github.com/punkave/sanitize-html
 function escapeHtml (s, replaceDoubleQuote) {
@@ -157,36 +158,21 @@ function * _render (view, options, hooks) {
     return result
   }
 
-  var component, vnode
-  if (isObject(view.tag)) { // embedded component
-    component = view.tag
-    vnode = {
-      state: copy(component),
-      children: copy(view.children),
-      attrs: view.attrs || {}
-    }
-  } else if (view.view) { // root component
-    component = view
-    vnode = {
-      state: copy(component),
-      children: copy(view.children),
-      attrs: options.attrs || {}
-    }
-  }
-
   if (view.attrs) {
     yield setHooks(view.attrs, view, hooks)
   }
 
   // component
-  if (isObject(view.tag)) {
-    vnode = {
-      state: copy(view.tag),
-      children: copy(view.children),
-      attrs: view.attrs
+  if (view.view || isObject(view.tag)) {
+    var component = view.view || view.tag
+    var vnode = {
+      tag: copy(component),
+      state: omit(component, COMPONENT_PROPS),
+      children: [].concat(view.children),
+      attrs: component.attrs || view.attrs || {}
     }
-    yield setHooks(view.tag, vnode, hooks)
-    return yield _render(view.tag.view.call(vnode.state, vnode), options, hooks)
+    yield setHooks(component, vnode, hooks)
+    return yield _render(component.view.call(vnode.state, vnode), options, hooks)
   }
 
   if (view.tag === '<') {
