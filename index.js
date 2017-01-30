@@ -163,9 +163,12 @@ function * _render (view, options, hooks) {
     yield setHooks(view.attrs, view, hooks)
   }
 
+  var component = view.view
+  if (isObject(view.tag)) {
+    component = view.tag
+  }
   // component
-  if (view.view || isObject(view.tag)) {
-    var component = view.view || view.tag
+  if (component) {
     var vnode = {
       tag: copy(component),
       state: omit(component, COMPONENT_PROPS),
