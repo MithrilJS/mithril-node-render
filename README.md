@@ -1,11 +1,3 @@
-Attention!
-==========
-
-This is the documenation for the version of mithril-node-render for mithril v1.0
-(rewrite).
-[Here](https://github.com/StephanHoyer/mithril-node-render/) you can find the
-version for the current version of mithril (0.2.x).
-
 mithril-node-render
 ===================
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/StephanHoyer/mithril-node-render?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
