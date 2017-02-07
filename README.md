@@ -12,7 +12,7 @@ Installation
 ------------
 
 ```
-npm install mithril-node-render@rewrite
+npm install mithril-node-render
 ```
 
 Usage
