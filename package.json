@@ -24,6 +24,6 @@
   "homepage": "https://github.com/StephanHoyer/mithril-node-render",
   "dependencies": {
     "co": "4.6.0",
-    "mithril": "1.0.0-rc.7"
+    "mithril": "1.0.1"
   }
 }
