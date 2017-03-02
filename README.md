@@ -30,7 +30,7 @@ render(m('span', 'huhu')).then(function (html) {
 Async components
 ----------------
 
-As you see the rendering is asyncronous. It waits for resolve of all promises
+As you see the rendering is asynchron. It waits for resolve of all promises
 that might get returned from `oninit` callbacks.
 
 ```javascript
