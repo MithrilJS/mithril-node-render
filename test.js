@@ -35,7 +35,7 @@ o.async('render', function * () {
   o(yield render(m('span', { style: { paddingLeft: '10px', color: 'red' } }))).equals('<span style="padding-left:10px;color:red"></span>')('should render children')
   o(yield render(m('div', [ 1, m('span'), '2' ]))).equals('<div>1<span></span>2</div>')('should render numbers as text nodes')
   o(yield render(m('div', 0))).equals('<div>0</div>')
-  o(yield render(m('div', false))).equals('<div>false</div>')
+  o(yield render(m('div', false))).equals('<div></div>')
   o(yield render(m('div', { a: true }))).equals('<div a></div>')
   o(yield render(m('div', { a: false }))).equals('<div></div>')
   o(yield render(m('div', { a: undefined }))).equals('<div></div>')
