@@ -8,6 +8,11 @@ mithril-node-render
 
 Use mithril views to render server side
 
+Demo
+----
+
+[Usage Example](https://github.com/StephanHoyer/mithril-isomorphic-example/blob/master/README.md)
+
 Installation
 ------------
 
