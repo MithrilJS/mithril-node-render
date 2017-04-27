@@ -17,6 +17,10 @@ function isObject (thing) {
   return typeof thing === 'object'
 }
 
+function isFunction (thing) {
+  return typeof thing === 'function'
+}
+
 function camelToDash (str) {
   return str.replace(/\W+/g, '-')
     .replace(/([a-z\d])([A-Z])/g, '$1-$2')
@@ -166,6 +170,9 @@ function * _render (view, options, hooks) {
   var component = view.view
   if (isObject(view.tag)) {
     component = view.tag
+  }
+  if (isFunction(view.tag)) {
+    component = view.tag()
   }
   // component
   if (component) {
