@@ -321,4 +321,15 @@ o.spec('async', function () {
   })
 })
 
+o.async('render closure components', function * () {
+  var closureComponent = function () {
+    return {
+      view: function(node) {
+        return m('p','p')
+      }
+    }
+  }
+  o(yield render(closureComponent())).equals('<p>p</p>')
+})
+
 o.run()
