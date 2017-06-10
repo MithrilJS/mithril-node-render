@@ -24,6 +24,9 @@ Usage
 -----
 
 ```javascript
+// use a mock DOM so we can run mithril on the server
+require('mithril/test-utils/browserMock')(global);
+
 var m = require('mithril');
 var render = require('mithril-node-render');
 
