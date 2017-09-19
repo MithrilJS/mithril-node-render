@@ -117,6 +117,16 @@ o.spec('components', function () {
     o(yield render(m(parentComponent, m.trust('<span>trust me</span>')))).equals('<div><span>trust me</span></div>')
     o(yield render(m(parentComponent, m(myComponent, { foo: 'foz' })))).equals('<div><div>hellobarfoz</div></div>')
   })
+
+  o.async('quouting html content right', function * () {
+    var component = {
+      view: function (node) {
+        return m('span', ['huh', '> >'])
+      }
+    }
+    var out = yield render(component)
+    o(out).equals('<span>huh&gt; &gt;</span>')
+  })
 })
 
 o.async('`this` in component', function * () {

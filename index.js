@@ -144,7 +144,7 @@ function * _render (view, options, hooks) {
   var type = typeof view
 
   if (type === 'string') {
-    return options.escapeString(view)
+    return view
   }
 
   if (type === 'number' || type === 'boolean') {
