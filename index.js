@@ -21,6 +21,13 @@ function isFunction (thing) {
   return typeof thing === 'function'
 }
 
+function isClass(thing) {
+  return isFunction(thing) && (
+    /^\s*class\s/.test(thing.toString()) || // ES6 class
+    /^\s*_classCallCheck\(/.test(thing.toString().replace(/^[^{]+{/, '')) // Babel class
+  )
+}
+
 function camelToDash (str) {
   return str.replace(/\W+/g, '-')
     .replace(/([a-z\d])([A-Z])/g, '$1-$2')
@@ -167,23 +174,26 @@ function * _render (view, options, hooks) {
     yield setHooks(view.attrs, view, hooks)
   }
 
-  var component = view.view
-  if (isObject(view.tag)) {
-    component = view.tag
-  }
-  if (isFunction(view.tag)) {
-    component = view.tag()
-  }
   // component
-  if (component) {
-    var vnode = {
-      tag: copy(component),
-      state: omit(component, COMPONENT_PROPS),
-      children: [].concat(view.children),
-      attrs: component.attrs || view.attrs || {}
+  if (view.view || view.tag) {
+    var vnode = { children: [].concat(view.children) }
+    var component = view.view
+    if (isObject(view.tag)) {
+      component = view.tag
+    } else if (isClass(view.tag)) {
+      component = new view.tag(vnode)
+    } else if (isFunction(view.tag)) {
+      component = view.tag()
     }
-    yield setHooks(component, vnode, hooks)
-    return yield _render(component.view.call(vnode.state, vnode), options, hooks)
+
+    if (component) {
+      vnode.tag = copy(component)
+      vnode.state = omit(component, COMPONENT_PROPS)
+      vnode.attrs = component.attrs || view.attrs || {}
+
+      yield setHooks(component, vnode, hooks)
+      return yield _render(component.view.call(vnode.state, vnode), options, hooks)
+    }
   }
 
   if (view.tag === '<') {

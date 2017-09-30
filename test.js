@@ -6,6 +6,9 @@ var mTrust = require('mithril/render/trust')
 var render = require('./index')
 var co = require('co')
 
+var ES6ClassComponent = require('./tests/fixtures/es6_class_component');
+var BabelClassComponent = require('./tests/fixtures/babel_class_component');
+
 o.async = function async (desc, genFn) {
   o(desc, function (done) {
     co(genFn).then(done)
@@ -99,6 +102,14 @@ o.spec('components', function () {
   o.async('as root', function * () {
     o(yield render(myComponent)).equals('<div>hellobar</div>')
     o(yield render(myComponent, { foo: '-attr-foo' })).equals('<div>hellobar-attr-foo</div>')
+  })
+
+  o.async('with component of ES6 class', function *() {
+    o(yield render(m(ES6ClassComponent))).equals('<div>hello-es6-class!!</div>')
+  })
+
+  o.async('with component of babel class', function *() {
+    o(yield render(m(BabelClassComponent))).equals('<div>hello-babel-class!!</div>')
   })
 
   o.async('with children', function * () {
