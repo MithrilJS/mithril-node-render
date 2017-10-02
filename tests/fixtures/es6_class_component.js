@@ -6,8 +6,12 @@ class ES6ClassComponent {
     this.vnode = vnode;
   }
 
-  view () {
-    return m('div', 'hello-es6-class!!');
+  oninit() {
+    this.vnode.state.foo = 'bar';
+  }
+
+  view() {
+    return m('div', ['hello', this.vnode.state.foo, this.vnode.attrs.foo]);
   }
 }
 

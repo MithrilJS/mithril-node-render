@@ -123,7 +123,7 @@ function * createChildrenContent (view, options, hooks) {
 
 function * render (view, attrs, options) {
   options = options || {}
-  if (view.view) { // root component
+  if (view.view || isClass(view)) { // root component
     view = m(view, attrs)
   } else {
     options = attrs || {}

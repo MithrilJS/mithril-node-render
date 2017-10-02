@@ -13,9 +13,14 @@ var BabelClassComponent = function () {
   }
 
   _createClass(BabelClassComponent, [{
+    key: 'oninit',
+    value: function oninit() {
+      this.vnode.state.foo = 'bar';
+    }
+  }, {
     key: 'view',
     value: function view() {
-      return m('div', 'hello-babel-class!!');
+      return m('div', ['hello', this.vnode.state.foo, this.vnode.attrs.foo]);
     }
   }]);
 
