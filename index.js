@@ -38,8 +38,8 @@ function removeEmpties (n) {
 }
 
 function omit (source, keys) {
-  var res = Object.create(source)
   keys = keys || []
+  var res = Object.create(source)
   keys.forEach(function(key) {
     if (key in res) { res[key] = null }
   });
