@@ -39,7 +39,7 @@ function removeEmpties (n) {
 
 function omit (source, keys) {
   keys = keys || []
-  var res = Object.create(source)
+  var res = Object.assign( Object.create( Object.getPrototypeOf(source)), source)
   keys.forEach(function(key) {
     if (key in res) { res[key] = null }
   });
