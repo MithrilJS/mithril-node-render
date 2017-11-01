@@ -1,6 +1,5 @@
 'use strict'
 
-const co = require('co')
 const m = require('mithril/hyperscript')
 
 const VOID_TAGS = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr',
@@ -65,9 +64,9 @@ function escapeHtml (s, replaceDoubleQuote) {
   return s
 }
 
-function * setHooks (component, vnode, hooks) {
+async function setHooks (component, vnode, hooks) {
   if (component.oninit) {
-    yield component.oninit.call(vnode.state, vnode) || function * () {}
+    await component.oninit.call(vnode.state, vnode) || async function () {}
   }
   if (component.onremove) {
     hooks.push(component.onremove.bind(vnode.state, vnode))
@@ -111,17 +110,17 @@ function createAttrString (view, escapeAttributeValue) {
   }).join('')
 }
 
-function * createChildrenContent (view, options, hooks) {
+async function createChildrenContent (view, options, hooks) {
   if (view.text != null) {
     return options.escapeString(view.text)
   }
   if (isArray(view.children) && !view.children.length) {
     return ''
   }
-  return yield _render(view.children, options, hooks)
+  return _render(view.children, options, hooks)
 }
 
-function * render (view, attrs, options) {
+async function render (view, attrs, options) {
   options = options || {}
   if (view.view || isClass(view)) { // root component
     view = m(view, attrs)
@@ -140,14 +139,14 @@ function * render (view, attrs, options) {
     if (!options.hasOwnProperty(key)) options[key] = defaultOptions[key]
   })
 
-  var result = yield _render(view, options, hooks)
+  var result = await _render(view, options, hooks)
 
   hooks.forEach(function (hook) { hook() })
 
   return result
 }
 
-function * _render (view, options, hooks) {
+async function _render (view, options, hooks) {
   var type = typeof view
 
   if (type === 'string') {
@@ -165,13 +164,13 @@ function * _render (view, options, hooks) {
   if (isArray(view)) {
     var result = ''
     for (const v of view) {
-      result += yield _render(v, options, hooks)
+      result += await _render(v, options, hooks)
     }
     return result
   }
 
   if (view.attrs) {
-    yield setHooks(view.attrs, view, hooks)
+    await setHooks(view.attrs, view, hooks)
   }
 
   // component
@@ -191,15 +190,15 @@ function * _render (view, options, hooks) {
       vnode.state = omit(component, COMPONENT_PROPS)
       vnode.attrs = component.attrs || view.attrs || {}
 
-      yield setHooks(component, vnode, hooks)
-      return yield _render(component.view.call(vnode.state, vnode), options, hooks)
+      await setHooks(component, vnode, hooks)
+      return _render(component.view.call(vnode.state, vnode), options, hooks)
     }
   }
 
   if (view.tag === '<') {
     return '' + view.children
   }
-  var children = yield createChildrenContent(view, options, hooks)
+  var children = await createChildrenContent(view, options, hooks)
   if (view.tag === '#') {
     return options.escapeString(children)
   }
@@ -216,5 +215,5 @@ function * _render (view, options, hooks) {
   ].join('')
 }
 
-module.exports = co.wrap(render)
+module.exports = render
 module.exports.escapeHtml = escapeHtml
