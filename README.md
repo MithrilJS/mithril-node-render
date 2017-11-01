@@ -35,11 +35,13 @@ render(m('span', 'huhu')).then(function (html) {
 })
 ```
 
-Async components
-----------------
+Asynchronous Rendering
+----------------------
 
-As you see the rendering is asynchron. It waits for resolve of all promises
-that might get returned from `oninit` callbacks.
+The rendering in `mithril-node-render` is completely asynchronous. During the
+rendering process, if a component returns a promise from its `oninit` callback,
+the renderer will wait for the promise to resolve before rendering the
+component:
 
 ```javascript
   myAsyncComponent = {
