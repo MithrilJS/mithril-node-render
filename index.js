@@ -21,8 +21,8 @@ function isFunction (thing) {
   return typeof thing === 'function'
 }
 
-function isClassComponent(thing) {
-  return thing.prototype != null && typeof thing.prototype.view === "function"
+function isClassComponent (thing) {
+  return thing.prototype != null && typeof thing.prototype.view === 'function'
 }
 
 function camelToDash (str) {
@@ -36,10 +36,10 @@ function removeEmpties (n) {
 
 function omit (source, keys) {
   keys = keys || []
-  var res = Object.assign( Object.create( Object.getPrototypeOf(source)), source)
-  keys.forEach(function(key) {
+  var res = Object.assign(Object.create(Object.getPrototypeOf(source)), source)
+  keys.forEach(function (key) {
     if (key in res) { res[key] = null }
-  });
+  })
   return res
 }
 

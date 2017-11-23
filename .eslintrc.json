@@ -1,4 +1,8 @@
 {
-    "extends": "standard"
+  "extends": "standard",
+  "rules": {
+    "new-cap": [2, {
+      "properties": false
+    }]
+  }
 }
-

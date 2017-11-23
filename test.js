@@ -6,9 +6,9 @@ var mTrust = require('mithril/render/trust')
 var render = require('./index')
 var co = require('co')
 
-var ES6ClassComponent = require('./tests/fixtures/es6_class_component');
-var BabelClassComponent = require('./tests/fixtures/babel_class_component');
-var FunctionClassComponent = require('./tests/fixtures/function_class_component');
+var ES6ClassComponent = require('./tests/fixtures/es6_class_component')
+var BabelClassComponent = require('./tests/fixtures/babel_class_component')
+var FunctionClassComponent = require('./tests/fixtures/function_class_component')
 
 o.async = function async (desc, genFn) {
   o(desc, function (done) {
@@ -136,7 +136,7 @@ o.spec('components', function () {
 var classComponents = { es6: ES6ClassComponent, babel: BabelClassComponent, function: FunctionClassComponent }
 for (var type in classComponents) {
   o.spec('component of ' + type + ' class', function () {
-    var classComponent = classComponents[type];
+    var classComponent = classComponents[type]
 
     o.async('embedded', function * () {
       o(yield render(m('div', m(classComponent)))).equals('<div><div>hellobar</div></div>')
@@ -221,20 +221,20 @@ o.async('lifecycle hooks as attributes on components', function * () {
 o.async('lifecycle hooks of class component', function * () {
   var initialized, removed
   var classComponent = class {
-    constructor(vnode) {
-      this.vnode = vnode;
+    constructor (vnode) {
+      this.vnode = vnode
     }
-    oninit(vnode) {
+    oninit (vnode) {
       initialized = true
       o(this).equals(vnode.state)('vnode.state should be the context in `oninit`')
       o(this.vnode).equals(vnode)('vnode.state equals passed in constructor')
     }
-    onremove(vnode) {
+    onremove (vnode) {
       removed = true
       o(this).equals(vnode.state)('vnode.state should be the context in `onremove`')
       o(this.vnode).equals(vnode)('vnode.state equals passed in constructor')
     }
-    view(vnode) {
+    view (vnode) {
       o(this).equals(vnode.state)('vnode.state should be the context in `view`')
       o(this.vnode).equals(vnode)('vnode.state equals passed in constructor')
       return m('p', 'hello')
@@ -382,8 +382,8 @@ o.spec('async', function () {
 o.async('render closure components', function * () {
   var closureComponent = function () {
     return {
-      view: function(node) {
-        return m('p','p')
+      view: function (node) {
+        return m('p', 'p')
       }
     }
   }
