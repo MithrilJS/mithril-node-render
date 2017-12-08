@@ -6,7 +6,7 @@ mithril-node-render
 [![Dependency Status](https://david-dm.org/MithrilJS/mithril-node-render.svg)](https://david-dm.org/MithrilJS/mithril-node-render)
 [![devDependency Status](https://david-dm.org/MithrilJS/mithril-node-render/dev-status.svg)](https://david-dm.org/MithrilJS/mithril-node-render#info=devDependencies)
 
-Use mithril views to render server side
+**Server-side rendering for mithril views**
 
 Installation
 ------------
@@ -53,19 +53,19 @@ rendering the component:
 const AsyncComponent = {
   oninit(node) {
     return new Promise(resolve => {
-        node.state.foo = 'bar'
-        resolve()
-      })
-    },
+      node.state.foo = 'bar'
+      resolve()
+    })
+  },
 
   view(node) {
-      return m('div', node.state.foo)
-    }
+    return m('div', node.state.foo)
   }
+}
 
 render(myAsyncComponent).then(html => {
-    // html === '<div>bar</div>'
-  }
+  // html === '<div>bar</div>'
+}
 ```
 
 Using [`async`/`await` syntax][] can make this even cleaner:
