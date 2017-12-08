@@ -7,6 +7,7 @@ var render = require('./index')
 
 var ES6ClassComponent = require('./tests/fixtures/es6_class_component');
 var BabelClassComponent = require('./tests/fixtures/babel_class_component');
+var FunctionClassComponent = require('./tests/fixtures/function_class_component');
 
 o.async = function (desc, asyncTest) {
   o(desc, async function (done) {
@@ -133,7 +134,7 @@ o.spec('components', function () {
   })
 })
 
-var classComponents = { es6: ES6ClassComponent, babel: BabelClassComponent }
+var classComponents = { es6: ES6ClassComponent, babel: BabelClassComponent, function: FunctionClassComponent }
 for (var type in classComponents) {
   o.spec('component of ' + type + ' class', function () {
     var classComponent = classComponents[type];

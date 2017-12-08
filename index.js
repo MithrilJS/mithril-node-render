@@ -20,11 +20,8 @@ function isFunction (thing) {
   return typeof thing === 'function'
 }
 
-function isClass(thing) {
-  return isFunction(thing) && (
-    /^\s*class\s/.test(thing.toString()) || // ES6 class
-    /^\s*_classCallCheck\(/.test(thing.toString().replace(/^[^{]+{/, '')) // Babel class
-  )
+function isClassComponent(thing) {
+  return thing.prototype != null && typeof thing.prototype.view === "function"
 }
 
 function camelToDash (str) {
@@ -38,12 +35,10 @@ function removeEmpties (n) {
 
 function omit (source, keys) {
   keys = keys || []
-  var res = {}
-  for (var k in source) {
-    if (keys.indexOf(k) < 0) {
-      res[k] = source[k]
-    }
-  }
+  var res = Object.assign( Object.create( Object.getPrototypeOf(source)), source)
+  keys.forEach(function(key) {
+    if (key in res) { res[key] = null }
+  });
   return res
 }
 
@@ -122,7 +117,7 @@ async function createChildrenContent (view, options, hooks) {
 
 async function render (view, attrs, options) {
   options = options || {}
-  if (view.view || isClass(view)) { // root component
+  if (view.view || isFunction(view)) { // root component
     view = m(view, attrs)
   } else {
     options = attrs || {}
@@ -179,7 +174,7 @@ async function _render (view, options, hooks) {
     var component = view.view
     if (isObject(view.tag)) {
       component = view.tag
-    } else if (isClass(view.tag)) {
+    } else if (isClassComponent(view.tag)) {
       component = new view.tag(vnode)
     } else if (isFunction(view.tag)) {
       component = view.tag()

@@ -25,10 +25,10 @@ Usage
 
 ```javascript
 // use a mock DOM so we can run mithril on the server
-require('mithril/test-utils/browserMock')(global);
+require('mithril/test-utils/browserMock')(global)
 
-var m = require('mithril');
-var render = require('mithril-node-render');
+var m = require('mithril')
+var render = require('mithril-node-render')
 
 render(m('span', 'huhu')).then(function (html) {
   // html === '<span>huhu</span>'
@@ -42,22 +42,21 @@ As you see the rendering is asynchron. It waits for resolve of all promises
 that might get returned from `oninit` callbacks.
 
 ```javascript
-  myAsyncComponent = {
-    oninit: function (node) {
-      return new Promise(function (resolve) {
-        node.state.foo = 'bar'
-        resolve()
-      })
-    },
-    view: function (node) {
-      return m('div', node.state.foo)
-    }
+var myAsyncComponent = {
+  oninit: function (node) {
+    return new Promise(function (resolve) {
+      node.state.foo = 'bar'
+      resolve()
+    })
+  },
+  view: function (node) {
+    return m('div', node.state.foo)
   }
+}
 
-  // usage
-  render(myAsyncComponent).then(function (html) {
-    // html === '<div>bar</div>'
-  }
+render(myAsyncComponent).then(function (html) {
+  // html === '<div>bar</div>'
+})
 ```
 
 
