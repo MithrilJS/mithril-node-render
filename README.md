@@ -16,7 +16,15 @@ Demo
 Installation
 ------------
 
+`mithril` is a peer dependency of `mithril-node-render`, so if you are starting a new project you should install them both:
+
+```sh
+npm install mithril mithril-node-render
 ```
+
+If you have already installed `mithril`, you can just do:
+
+```sh
 npm install mithril-node-render
 ```
 
