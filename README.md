@@ -63,24 +63,35 @@ component:
 ```
 
 
-Options
--------
+API
+---
 
-Optionally pass in options as an object: `m.render(component, options)`.
+### `render(component[, options]) => Promise<string>`
 
-The following options are supported:
+Argument                       | Type                        | Default                                | Description
+-------------------------------|-----------------------------|----------------------------------------|--------------------------------
+`component`                    | `Component|null`            | **This argument is required.**         | The [Mithril Component][] to be rendered.
+`options.strict`               | `boolean`                   | `false`                                | Controls whether output should follow XML/XHTML syntax (`true`) or HTML syntax (`false`).<br><br>When `true`, empty tags like `<br>` and `<meta>` will be output as self-closing, i.e. `<br />` and `<meta />`.
+`options.escapeAttributeValue` | `(value: any) => string`    | `render.escapeHtml`                    | Function to use for [escaping attribute values][].
+`options.escapeString`         | `(value: string) => string` | `render.escapeHtml`                    | Function to use for escaping [text vnodes][].
 
-**escapeAttributeValue(value)**
-`Default: render.escapeHtml`
-A filter function for attribute values. Receives value, returns what is printed.
 
-**escapeString(value)**
-`Default: render.escapeHtml`
-A filter function for string nodes. Receives value, returns what is printed.
+**Returns:** A `Promise` that resolves to a `string` containing the rendered HTML.
 
-**strict**
-`Default: false`
-Set this to true to close all empty tags automatically. Default is HTML mode where tags like `<br>` and `<meta>` are allowed without closing tags. This is required if you're rendering XML or XHTML documents.
+[Mithril Component]: https://mithril.js.org/components.html
+[escaping attribute values]: https://www.owasp.org/index.php/XSS_(Cross_Site_Scripting)_Prevention_Cheat_Sheet#RULE_.232_-_Attribute_Escape_Before_Inserting_Untrusted_Data_into_HTML_Common_Attributes
+[text vnodes]: https://mithril.js.org/vnodes.html#vnode-types
+
+----
+
+### `render.escapeHtml(value) => string`
+
+Argument    | Type     | Default     | Description
+------------|----------|-------------|-------------
+`value`     | `any`    | `undefined` | The value to be escaped.
+
+**Returns:** A `string` containing an HTML-escaped version of the original value.
+
 
 
 See also
