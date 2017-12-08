@@ -8,11 +8,6 @@ mithril-node-render
 
 Use mithril views to render server side
 
-Demo
-----
-
-[Usage Example](https://github.com/StephanHoyer/mithril-isomorphic-example/blob/master/README.md)
-
 Installation
 ------------
 
@@ -35,41 +30,66 @@ Usage
 // use a mock DOM so we can run mithril on the server
 require('mithril/test-utils/browserMock')(global);
 
-var m = require('mithril');
-var render = require('mithril-node-render');
+const m = require('mithril');
+const render = require('mithril-node-render');
 
 render(m('span', 'huhu')).then(function (html) {
   // html === '<span>huhu</span>'
 })
 ```
 
+Please see [the `mithril-isomorphic-example` repo](https://github.com/StephanHoyer/mithril-isomorphic-example/blob/master/README.md) for a full example.
+
 Asynchronous Rendering
 ----------------------
 
-The rendering in `mithril-node-render` is completely asynchronous. During the
-rendering process, if a component returns a promise from its `oninit` callback,
-the renderer will wait for the promise to resolve before rendering the
-component:
+`mithril-node-render` peforms all rendering asynchronously.
+
+During the rendering process, if a component returns a promise from its
+[`oninit` lifecycle hook][], the renderer will wait for the promise to resolve before
+rendering the component:
 
 ```javascript
-  myAsyncComponent = {
-    oninit: function (node) {
-      return new Promise(function (resolve) {
+const AsyncComponent = {
+  oninit(node) {
+    return new Promise(resolve => {
         node.state.foo = 'bar'
         resolve()
       })
     },
-    view: function (node) {
+
+  view(node) {
       return m('div', node.state.foo)
     }
   }
 
-  // usage
-  render(myAsyncComponent).then(function (html) {
+render(myAsyncComponent).then(html => {
     // html === '<div>bar</div>'
   }
 ```
 
+Using [`async`/`await` syntax][] can make this even cleaner:
+
+
+```javascript
+const AsyncComponent = {
+  async oninit(node) {
+    node.state.foo = await fetchRemoteData();
+  },
+
+  view(node) {
+    return m('div', node.state.foo)
+  }
+}
+
+// Then with e.g. Koa:
+app.use(async ctx => {
+  ctx.body = await render(myAsyncComponent);
+})
+```
+
+[`oninit` lifecycle hook]: https://mithril.js.org/lifecycle-methods.html#oninit
+[`async`/`await` syntax]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
 
 API
 ---
