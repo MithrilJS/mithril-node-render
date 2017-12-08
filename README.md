@@ -28,10 +28,10 @@ Usage
 
 ```javascript
 // use a mock DOM so we can run mithril on the server
-require('mithril/test-utils/browserMock')(global);
+require('mithril/test-utils/browserMock')(global)
 
-const m = require('mithril');
-const render = require('mithril-node-render');
+var m = require('mithril')
+var render = require('mithril-node-render')
 
 render(m('span', 'huhu')).then(function (html) {
   // html === '<span>huhu</span>'
@@ -50,46 +50,43 @@ During the rendering process, if a component returns a promise from its
 rendering the component:
 
 ```javascript
-const AsyncComponent = {
-  oninit(node) {
-    return new Promise(resolve => {
+var myAsyncComponent = {
+  oninit: function (node) {
+    return new Promise(function (resolve) {
       node.state.foo = 'bar'
       resolve()
     })
   },
-
-  view(node) {
+  view: function (node) {
     return m('div', node.state.foo)
   }
 }
 
-render(myAsyncComponent).then(html => {
+render(myAsyncComponent).then(function (html) {
   // html === '<div>bar</div>'
-}
 ```
 
-Using [`async`/`await` syntax][] can make this even cleaner:
+This works well with [`async` functions][], which implictly return promises:
 
 
 ```javascript
 const AsyncComponent = {
-  async oninit(node) {
-    node.state.foo = await fetchRemoteData();
+  oninit: async function (node) {
+    node.state.foo = await fetchRemoteData()
   },
-
-  view(node) {
+  view: function (node) {
     return m('div', node.state.foo)
   }
 }
 
 // Then with e.g. Koa:
-app.use(async ctx => {
-  ctx.body = await render(myAsyncComponent);
+app.use(async function (ctx) => {
+  ctx.body = await render(myAsyncComponent)
 })
 ```
 
 [`oninit` lifecycle hook]: https://mithril.js.org/lifecycle-methods.html#oninit
-[`async`/`await` syntax]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
+[`async` functions]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function
 
 API
 ---

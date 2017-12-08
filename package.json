@@ -1,6 +1,6 @@
 {
   "name": "mithril-node-render",
-  "version": "2.1.1",
+  "version": "2.3.0",
   "description": "Node rending of mithril views",
   "main": "index.js",
   "scripts": {
@@ -23,7 +23,12 @@
   },
   "homepage": "https://github.com/StephanHoyer/mithril-node-render",
   "dependencies": {
-    "co": "4.6.0",
-    "mithril": "1.1.3"
+    "co": "4.6.0"
+  },
+  "peerDependencies": {
+    "mithril": "^1.1.5"
+  },
+  "devDependencies": {
+    "mithril": "1.1.5"
   }
 }
