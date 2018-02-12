@@ -2,14 +2,41 @@
 
 const m = require('mithril/hyperscript')
 
-const VOID_TAGS = ['area', 'base', 'br', 'col', 'command', 'embed', 'hr',
-  'img', 'input', 'keygen', 'link', 'meta', 'param', 'source', 'track',
-  'wbr', '!doctype']
+const VOID_TAGS = [
+  'area',
+  'base',
+  'br',
+  'col',
+  'command',
+  'embed',
+  'hr',
+  'img',
+  'input',
+  'keygen',
+  'link',
+  'meta',
+  'param',
+  'source',
+  'track',
+  'wbr',
+  '!doctype'
+]
 
-const COMPONENT_PROPS = ['oninit', 'view', 'oncreate', 'onbeforeupdate', 'onupdate', 'onbeforeremove', 'onremove']
+const COMPONENT_PROPS = [
+  'oninit',
+  'view',
+  'oncreate',
+  'onbeforeupdate',
+  'onupdate',
+  'onbeforeremove',
+  'onremove'
+]
 
 function isArray (thing) {
-  return thing !== '[object Array]' && Object.prototype.toString.call(thing) === '[object Array]'
+  return (
+    thing !== '[object Array]' &&
+    Object.prototype.toString.call(thing) === '[object Array]'
+  )
 }
 
 function isObject (thing) {
@@ -25,8 +52,7 @@ function isClassComponent (thing) {
 }
 
 function camelToDash (str) {
-  return str.replace(/\W+/g, '-')
-    .replace(/([a-z\d])([A-Z])/g, '$1-$2')
+  return str.replace(/\W+/g, '-').replace(/([a-z\d])([A-Z])/g, '$1-$2')
 }
 
 function removeEmpties (n) {
@@ -35,9 +61,11 @@ function removeEmpties (n) {
 
 function omit (source, keys) {
   keys = keys || []
-  var res = Object.assign(Object.create(Object.getPrototypeOf(source)), source)
+  const res = Object.assign(Object.create(Object.getPrototypeOf(source)), source)
   keys.forEach(function (key) {
-    if (key in res) { res[key] = null }
+    if (key in res) {
+      res[key] = null
+    }
   })
   return res
 }
@@ -49,10 +77,13 @@ function escapeHtml (s, replaceDoubleQuote) {
   if (s === 'undefined') {
     s = ''
   }
-  if (typeof (s) !== 'string') {
+  if (typeof s !== 'string') {
     s = s + ''
   }
-  s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  s = s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
   if (replaceDoubleQuote) {
     return s.replace(/"/g, '&quot;')
   }
@@ -61,7 +92,7 @@ function escapeHtml (s, replaceDoubleQuote) {
 
 async function setHooks (component, vnode, hooks) {
   if (component.oninit) {
-    await component.oninit.call(vnode.state, vnode) || async function () {}
+    await (component.oninit.call(vnode.state, vnode) || async function () {})
   }
   if (component.onremove) {
     hooks.push(component.onremove.bind(vnode.state, vnode))
@@ -69,40 +100,61 @@ async function setHooks (component, vnode, hooks) {
 }
 
 function createAttrString (view, escapeAttributeValue) {
-  var attrs = view.attrs
+  const attrs = view.attrs
 
   if (!attrs || !Object.keys(attrs).length) {
     return ''
   }
 
-  return Object.keys(attrs).map(function (name) {
-    var value = attrs[name]
-    if (typeof value === 'undefined' || value === null || typeof value === 'function') {
-      return
-    }
-    if (typeof value === 'boolean') {
-      return value ? ' ' + name : ''
-    }
-    if (name === 'style') {
-      if (!value) {
+  return Object.keys(attrs)
+    .map(function (name) {
+      const value = attrs[name]
+      if (
+        typeof value === 'undefined' ||
+        value === null ||
+        typeof value === 'function'
+      ) {
         return
       }
-      var styles = attrs.style
-      if (isObject(styles)) {
-        styles = Object.keys(styles).map(function (property) {
-          return styles[property] !== '' ? [camelToDash(property).toLowerCase(), styles[property]].join(':') : ''
-        }).filter(removeEmpties).join(';')
+      if (typeof value === 'boolean') {
+        return value ? ' ' + name : ''
       }
-      return styles !== '' ? ' style="' + escapeAttributeValue(styles, true) + '"' : ''
-    }
+      if (name === 'style') {
+        if (!value) {
+          return
+        }
+        let styles = attrs.style
+        if (isObject(styles)) {
+          styles = Object.keys(styles)
+            .map(function (property) {
+              return styles[property] !== ''
+                ? [camelToDash(property).toLowerCase(), styles[property]].join(
+                  ':'
+                )
+                : ''
+            })
+            .filter(removeEmpties)
+            .join(';')
+        }
+        return styles !== ''
+          ? ' style="' + escapeAttributeValue(styles, true) + '"'
+          : ''
+      }
 
-    // Handle SVG <use> tags specially
-    if (name === 'href' && view.tag === 'use') {
-      return ' xlink:href="' + escapeAttributeValue(value, true) + '"'
-    }
+      // Handle SVG <use> tags specially
+      if (name === 'href' && view.tag === 'use') {
+        return ' xlink:href="' + escapeAttributeValue(value, true) + '"'
+      }
 
-    return ' ' + (name === 'className' ? 'class' : name) + '="' + escapeAttributeValue(value, true) + '"'
-  }).join('')
+      return (
+        ' ' +
+        (name === 'className' ? 'class' : name) +
+        '="' +
+        escapeAttributeValue(value, true) +
+        '"'
+      )
+    })
+    .join('')
 }
 
 async function createChildrenContent (view, options, hooks) {
@@ -117,14 +169,15 @@ async function createChildrenContent (view, options, hooks) {
 
 async function render (view, attrs, options) {
   options = options || {}
-  if (view.view || isFunction(view)) { // root component
+  if (view.view || isFunction(view)) {
+    // root component
     view = m(view, attrs)
   } else {
     options = attrs || {}
   }
-  var hooks = []
+  const hooks = []
 
-  var defaultOptions = {
+  const defaultOptions = {
     escapeAttributeValue: escapeHtml,
     escapeString: escapeHtml,
     strict: false
@@ -134,15 +187,17 @@ async function render (view, attrs, options) {
     if (!options.hasOwnProperty(key)) options[key] = defaultOptions[key]
   })
 
-  var result = await _render(view, options, hooks)
+  const result = await _render(view, options, hooks)
 
-  hooks.forEach(function (hook) { hook() })
+  hooks.forEach(function (hook) {
+    hook()
+  })
 
   return result
 }
 
 async function _render (view, options, hooks) {
-  var type = typeof view
+  const type = typeof view
 
   if (type === 'string') {
     return view
@@ -157,7 +212,7 @@ async function _render (view, options, hooks) {
   }
 
   if (isArray(view)) {
-    var result = ''
+    let result = ''
     for (const v of view) {
       result += await _render(v, options, hooks)
     }
@@ -170,8 +225,8 @@ async function _render (view, options, hooks) {
 
   // component
   if (view.view || view.tag) {
-    var vnode = { children: [].concat(view.children) }
-    var component = view.view
+    const vnode = { children: [].concat(view.children) }
+    let component = view.view
     if (isObject(view.tag)) {
       component = view.tag
     } else if (isClassComponent(view.tag)) {
@@ -193,20 +248,34 @@ async function _render (view, options, hooks) {
   if (view.tag === '<') {
     return '' + view.children
   }
-  var children = await createChildrenContent(view, options, hooks)
+  const children = await createChildrenContent(view, options, hooks)
   if (view.tag === '#') {
     return options.escapeString(children)
   }
   if (view.tag === '[') {
     return '' + children
   }
-  if (!children && (options.strict || VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0)) {
-    return '<' + view.tag + createAttrString(view, options.escapeAttributeValue) + (options.strict ? '/' : '') + '>'
+  if (
+    !children &&
+    (options.strict || VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0)
+  ) {
+    return (
+      '<' +
+      view.tag +
+      createAttrString(view, options.escapeAttributeValue) +
+      (options.strict ? '/' : '') +
+      '>'
+    )
   }
   return [
-    '<', view.tag, createAttrString(view, options.escapeAttributeValue), '>',
+    '<',
+    view.tag,
+    createAttrString(view, options.escapeAttributeValue),
+    '>',
     children,
-    '</', view.tag, '>'
+    '</',
+    view.tag,
+    '>'
   ].join('')
 }
 

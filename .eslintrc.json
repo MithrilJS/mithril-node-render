@@ -1,8 +1,19 @@
 {
   "extends": "standard",
+  "env": {
+    "commonjs": true,
+    "es6": true,
+    "node": true,
+    "mocha": true
+  },
   "rules": {
-    "new-cap": [2, {
-      "properties": false
-    }]
+    "prefer-const": "error",
+    "no-var": "error",
+    "new-cap": [
+      2,
+      {
+        "properties": false
+      }
+    ]
   }
 }
