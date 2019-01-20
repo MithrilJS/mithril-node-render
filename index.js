@@ -47,8 +47,12 @@ function isFunction(thing) {
   return typeof thing === "function";
 }
 
-function isClassComponent (thing) {
-  return thing.prototype != null && typeof thing.prototype.view === 'function'
+function isClassComponent(thing) {
+  return (
+    thing &&
+    thing.prototype &&
+    typeof thing.prototype.view === "function"
+  );
 }
 
 function camelToDash(str) {
@@ -243,6 +247,10 @@ async function _render(view, options, hooks) {
       vnode.tag = copy(component);
       vnode.state = omit(component, COMPONENT_PROPS);
       vnode.attrs = component.attrs || view.attrs || {};
+
+      if (!component.view) {
+        component = { view: component };
+      }
 
       await setHooks(component, vnode, hooks);
       return _render(component.view.call(vnode.state, vnode), options, hooks);
