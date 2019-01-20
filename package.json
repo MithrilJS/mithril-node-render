@@ -4,7 +4,9 @@
   "description": "Node rending of mithril views",
   "main": "index.js",
   "scripts": {
-    "test": "node test.js && eslint index.js test.js"
+    "prettify": "prettier --write '*.js' && prettier --write 'tests/**/*.js'",
+    "lint": "eslint *.js tests/**/*.js",
+    "test": "npm run lint && node test.js"
   },
   "repository": {
     "type": "git",
@@ -30,11 +32,13 @@
   },
   "devDependencies": {
     "eslint": "4.11.0",
-    "eslint-config-standard": "10.2.1",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-plugin-prettier": "^2.6.2",
     "eslint-plugin-import": "2.8.0",
     "eslint-plugin-node": "5.2.1",
     "eslint-plugin-promise": "3.6.0",
     "eslint-plugin-standard": "3.0.1",
+    "prettier": "^1.15.3",
     "mithril": "^1.1.6"
   }
 }

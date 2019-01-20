@@ -1,17 +1,17 @@
 "use strict";
-const m = require('mithril/hyperscript')
+const m = require("mithril/hyperscript");
 
 class ES6ClassComponent {
-  constructor (vnode) {
+  constructor(vnode) {
     this.vnode = vnode;
   }
 
   oninit() {
-    this.vnode.state.foo = 'bar';
+    this.vnode.state.foo = "bar";
   }
 
   view() {
-    return m('div', ['hello', this.vnode.state.foo, this.vnode.attrs.foo]);
+    return m("div", ["hello", this.vnode.state.foo, this.vnode.attrs.foo]);
   }
 }
 

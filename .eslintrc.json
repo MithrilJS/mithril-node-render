@@ -1,5 +1,5 @@
 {
-  "extends": "standard",
+  "extends": ["plugin:prettier/recommended"],
   "env": {
     "commonjs": true,
     "es6": true,
