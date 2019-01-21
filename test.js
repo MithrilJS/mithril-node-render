@@ -16,13 +16,6 @@ o.async = function(desc, asyncTest) {
   });
 };
 
-o.async = function(desc, asyncTest) {
-  o(desc, async function(done) {
-    await asyncTest();
-    done();
-  });
-};
-
 o.async("render", async function() {
   o(await render(m("span", "content"))).equals(
     "<span>content</span>"
