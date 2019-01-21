@@ -1,10 +1,10 @@
 "use strict";
 const m = require("mithril/hyperscript");
 
-var _createClass = (function() {
+const _createClass = (function() {
   function defineProperties(target, props) {
-    for (var i = 0; i < props.length; i++) {
-      var descriptor = props[i];
+    for (let i = 0; i < props.length; i++) {
+      const descriptor = props[i];
       descriptor.enumerable = descriptor.enumerable || false;
       descriptor.configurable = true;
       if ("value" in descriptor) descriptor.writable = true;
@@ -24,7 +24,7 @@ function _classCallCheck(instance, Constructor) {
   }
 }
 
-var BabelClassComponent = (function() {
+const BabelClassComponent = (function() {
   function BabelClassComponent(vnode) {
     _classCallCheck(this, BabelClassComponent);
 

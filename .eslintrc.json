@@ -6,6 +6,9 @@
     "node": true,
     "mocha": true
   },
+  "parserOptions": {
+    "ecmaVersion": 8
+  },
   "rules": {
     "prefer-const": "error",
     "no-var": "error",

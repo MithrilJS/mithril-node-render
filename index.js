@@ -48,11 +48,7 @@ function isFunction(thing) {
 }
 
 function isClassComponent(thing) {
-  return (
-    thing &&
-    thing.prototype &&
-    typeof thing.prototype.view === "function"
-  );
+  return thing && thing.prototype && typeof thing.prototype.view === "function";
 }
 
 function camelToDash(str) {
