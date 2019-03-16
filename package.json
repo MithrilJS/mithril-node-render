@@ -22,9 +22,6 @@
     "url": "https://github.com/StephanHoyer/mithril-node-render/issues"
   },
   "homepage": "https://github.com/StephanHoyer/mithril-node-render",
-  "dependencies": {
-    "co": "4.6.0"
-  },
   "peerDependencies": {
     "mithril": "1.1.6"
   },
@@ -35,6 +32,6 @@
     "eslint-plugin-node": "5.2.1",
     "eslint-plugin-promise": "3.6.0",
     "eslint-plugin-standard": "3.0.1",
-    "mithril": "^1.1.6"
+    "mithril": "1.1.6"
   }
 }
