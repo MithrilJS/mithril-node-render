@@ -61,7 +61,10 @@ function removeEmpties (n) {
 
 function omit (source, keys) {
   keys = keys || []
-  const res = Object.assign(Object.create(Object.getPrototypeOf(source)), source)
+  const res = Object.assign(
+    Object.create(Object.getPrototypeOf(source)),
+    source
+  )
   keys.forEach(function (key) {
     if (key in res) {
       res[key] = null
@@ -110,6 +113,7 @@ function createAttrString (view, escapeAttributeValue) {
     .map(function (name) {
       const value = attrs[name]
       if (
+        name === 'key' ||
         typeof value === 'undefined' ||
         value === null ||
         typeof value === 'function'
