@@ -78,6 +78,7 @@ o.async('render', async function () {
   o(await render(m('div', { a: true }))).equals('<div a></div>')
   o(await render(m('div', { a: false }))).equals('<div></div>')
   o(await render(m('div', { a: undefined }))).equals('<div></div>')
+  o(await render(m('div', { key: '123' }))).equals('<div></div>')
   o(await render(m('div', { style: null }))).equals('<div></div>')
   o(await render(m('div', { style: '' }))).equals('<div></div>')
   o(await render(m('div', { style: { color: '' } }))).equals('<div></div>')
