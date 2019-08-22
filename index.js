@@ -1,283 +1,190 @@
 'use strict'
 
 const m = require('mithril/hyperscript')
+const Vnode = require('mithril/render/vnode')
 
-const VOID_TAGS = [
-  'area',
-  'base',
-  'br',
-  'col',
-  'command',
-  'embed',
-  'hr',
-  'img',
-  'input',
-  'keygen',
-  'link',
-  'meta',
-  'param',
-  'source',
-  'track',
-  'wbr',
-  '!doctype'
-]
+const VOID_TAGS = new RegExp('^(?:' +
+  'area|' +
+  'base|' +
+  'br|' +
+  'col|' +
+  'command|' +
+  'embed|' +
+  'hr|' +
+  'img|' +
+  'input|' +
+  'keygen|' +
+  'link|' +
+  'meta|' +
+  'param|' +
+  'source|' +
+  'track|' +
+  'wbr|' +
+  '!doctype' +
+')$', 'i')
 
-const COMPONENT_PROPS = [
-  'oninit',
-  'view',
-  'oncreate',
-  'onbeforeupdate',
-  'onupdate',
-  'onbeforeremove',
-  'onremove'
-]
+const hasOwn = {}.hasOwnProperty
 
-function isArray (thing) {
-  return (
-    thing !== '[object Array]' &&
-    Object.prototype.toString.call(thing) === '[object Array]'
-  )
+function toStyleKey (str) {
+  return str
+    .replace(/\W+/g, '-')
+    .replace(/([a-z\d])([A-Z])/g, '$1-$2')
+    .toLowerCase()
 }
 
-function isObject (thing) {
-  return typeof thing === 'object'
+function replaceHtml (m) {
+  if (m === '&') return '&amp;'
+  if (m === '<') return '&lt;'
+  return '&gt;'
 }
 
-function isFunction (thing) {
-  return typeof thing === 'function'
+function replaceAttribute (m) {
+  if (m === '&') return '&amp;'
+  if (m === '<') return '&lt;'
+  if (m === '>') return '&gt;'
+  return '&quot;'
 }
 
-function isClassComponent (thing) {
-  return thing.prototype != null && typeof thing.prototype.view === 'function'
-}
+const defaults = {
+  escapeText (s) {
+    return s.replace(/[&<>]/g, replaceHtml)
+  },
 
-function camelToDash (str) {
-  return str.replace(/\W+/g, '-').replace(/([a-z\d])([A-Z])/g, '$1-$2')
-}
-
-function removeEmpties (n) {
-  return n !== ''
-}
-
-function omit (source, keys) {
-  keys = keys || []
-  const res = Object.assign(Object.create(Object.getPrototypeOf(source)), source)
-  keys.forEach(function (key) {
-    if (key in res) {
-      res[key] = null
-    }
-  })
-  return res
-}
-
-const copy = omit
-
-// shameless stolen from https://github.com/punkave/sanitize-html
-function escapeHtml (s, replaceDoubleQuote) {
-  if (s === 'undefined') {
-    s = ''
-  }
-  if (typeof s !== 'string') {
-    s = s + ''
-  }
-  s = s
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-  if (replaceDoubleQuote) {
-    return s.replace(/"/g, '&quot;')
-  }
-  return s
-}
-
-async function setHooks (component, vnode, hooks) {
-  if (component.oninit) {
-    await (component.oninit.call(vnode.state, vnode) || async function () {})
-  }
-  if (component.onremove) {
-    hooks.push(component.onremove.bind(vnode.state, vnode))
+  escapeAttribute (s) {
+    return s.replace(/[&<>"]/g, replaceAttribute)
   }
 }
 
-function createAttrString (view, escapeAttributeValue) {
-  const attrs = view.attrs
-
-  if (!attrs || !Object.keys(attrs).length) {
-    return ''
-  }
-
-  return Object.keys(attrs)
-    .map(function (name) {
-      const value = attrs[name]
-      if (
-        typeof value === 'undefined' ||
-        value === null ||
-        typeof value === 'function'
-      ) {
-        return
-      }
-      if (typeof value === 'boolean') {
-        return value ? ' ' + name : ''
-      }
-      if (name === 'style') {
-        if (!value) {
-          return
-        }
-        let styles = attrs.style
-        if (isObject(styles)) {
-          styles = Object.keys(styles)
-            .map(function (property) {
-              return styles[property] !== ''
-                ? [camelToDash(property).toLowerCase(), styles[property]].join(
-                  ':'
-                )
-                : ''
-            })
-            .filter(removeEmpties)
-            .join(';')
-        }
-        return styles !== ''
-          ? ' style="' + escapeAttributeValue(styles, true) + '"'
-          : ''
-      }
-
-      // Handle SVG <use> tags specially
-      if (name === 'href' && view.tag === 'use') {
-        return ' xlink:href="' + escapeAttributeValue(value, true) + '"'
-      }
-
-      return (
-        ' ' +
-        (name === 'className' ? 'class' : name) +
-        '="' +
-        escapeAttributeValue(value, true) +
-        '"'
-      )
-    })
-    .join('')
+function bindOpt (options, key) {
+  return options[key] ? options[key].bind(options) : defaults[key]
 }
 
-async function createChildrenContent (view, options, hooks) {
-  if (view.text != null) {
-    return options.escapeString(view.text)
-  }
-  if (isArray(view.children) && !view.children.length) {
-    return ''
-  }
-  return _render(view.children, options, hooks)
-}
-
-async function render (view, attrs, options) {
-  options = options || {}
-  if (view.view || isFunction(view)) {
+function render (view, attrs, options) {
+  // Fast-path a very simple case. Also lets me perform some renderer
+  // optimizations.
+  if (view == null) return ''
+  if (view.view || typeof view === 'function') {
     // root component
     view = m(view, attrs)
+    options = options || {}
   } else {
     options = attrs || {}
   }
   const hooks = []
+  let result = ''
+  const escapeAttribute = bindOpt(options, 'escapeAttribute')
+  const escapeText = bindOpt(options, 'escapeText')
+  const xml = !!options.xml
+  const strict = xml || !!options.strict
 
-  const defaultOptions = {
-    escapeAttributeValue: escapeHtml,
-    escapeString: escapeHtml,
-    strict: false
+  function write (value) {
+    result = '' + result + value
   }
 
-  Object.keys(defaultOptions).forEach(function (key) {
-    if (!options.hasOwnProperty(key)) options[key] = defaultOptions[key]
-  })
-
-  const result = await _render(view, options, hooks)
-
-  hooks.forEach(function (hook) {
-    hook()
-  })
-
-  return result
-}
-
-async function _render (view, options, hooks) {
-  const type = typeof view
-
-  if (type === 'string') {
-    return view
-  }
-
-  if (type === 'number' || type === 'boolean') {
-    return view
-  }
-
-  if (!view) {
-    return ''
-  }
-
-  if (isArray(view)) {
-    let result = ''
-    for (const v of view) {
-      result += await _render(v, options, hooks)
+  function setHooks (source, vnode) {
+    if (source.oninit) {
+      source.oninit.call(vnode.state, vnode)
     }
-    return result
-  }
-
-  if (view.attrs) {
-    await setHooks(view.attrs, view, hooks)
-  }
-
-  // component
-  if (view.view || view.tag) {
-    const vnode = { children: [].concat(view.children) }
-    let component = view.view
-    if (isObject(view.tag)) {
-      component = view.tag
-    } else if (isClassComponent(view.tag)) {
-      component = new view.tag(vnode)
-    } else if (isFunction(view.tag)) {
-      component = view.tag()
-    }
-
-    if (component) {
-      vnode.tag = copy(component)
-      vnode.state = omit(component, COMPONENT_PROPS)
-      vnode.attrs = component.attrs || view.attrs || {}
-
-      await setHooks(component, vnode, hooks)
-      return _render(component.view.call(vnode.state, vnode), options, hooks)
+    if (source.onremove) {
+      hooks.push(source.onremove.bind(vnode.state, vnode))
     }
   }
 
-  if (view.tag === '<') {
-    return '' + view.children
+  function createAttrString (view) {
+    for (const key in view.attrs) {
+      if (hasOwn.call(view.attrs, key)) {
+        let value = view.attrs[key]
+        if (value == null || typeof value === 'function') continue
+        const name = key === 'className' ? 'class' : key
+
+        if (name === 'style' && typeof value === 'object') {
+          const styles = value
+          const props = []
+          for (const key of Object.keys(styles)) {
+            const prop = styles[key]
+            if (prop) props.push(`${toStyleKey(key)}:${prop}`)
+          }
+          if (!props.length) continue
+          value = props.join(';')
+        }
+
+        if (typeof value === 'boolean') {
+          if (xml) value = value ? 'true' : 'false'
+          else if (!value) continue
+          else value = ''
+        } else {
+          value = '' + value
+        }
+
+        write(` ${name}`)
+        if (strict || value !== '') {
+          write(`="${escapeAttribute(value)}"`)
+        }
+      }
+    }
   }
-  const children = await createChildrenContent(view, options, hooks)
-  if (view.tag === '#') {
-    return options.escapeString(children)
+
+  function renderComponent (vnode) {
+    if (typeof vnode.tag !== 'function') {
+      vnode.state = Object.create(vnode.tag)
+    } else if (vnode.tag.prototype && vnode.tag.prototype.view) {
+      vnode.state = new vnode.tag(vnode)
+    } else {
+      vnode.state = vnode.tag(vnode)
+    }
+
+    setHooks(vnode.state, vnode)
+    if (vnode.attrs != null) setHooks(vnode.attrs, vnode)
+    vnode.instance = Vnode.normalize(vnode.state.view(vnode))
+    if (vnode.instance != null) renderNode(vnode.instance)
   }
-  if (view.tag === '[') {
-    return '' + children
+
+  function renderElement (vnode) {
+    write(`<${vnode.tag}`)
+    createAttrString(vnode)
+    // Don't write children for void HTML elements
+    if (!xml && VOID_TAGS.test(vnode.tag)) {
+      write(strict ? '/>' : '>')
+    } else {
+      write('>')
+      if (vnode.text != null) {
+        const text = '' + vnode.text
+        if (text !== '') write(escapeText(text))
+      } else {
+        renderChildren(vnode.children)
+      }
+      write(`</${vnode.tag}>`)
+    }
   }
-  if (
-    !children &&
-    (options.strict || VOID_TAGS.indexOf(view.tag.toLowerCase()) >= 0)
-  ) {
-    return (
-      '<' +
-      view.tag +
-      createAttrString(view, options.escapeAttributeValue) +
-      (options.strict ? '/' : '') +
-      '>'
-    )
+
+  function renderChildren (vnodes) {
+    for (const v of vnodes) {
+      if (v != null) renderNode(v)
+    }
   }
-  return [
-    '<',
-    view.tag,
-    createAttrString(view, options.escapeAttributeValue),
-    '>',
-    children,
-    '</',
-    view.tag,
-    '>'
-  ].join('')
+
+  function renderNode (vnode) {
+    if (vnode == null) return
+    if (typeof vnode.tag === 'string') {
+      vnode.state = {}
+      if (vnode.attrs != null) setHooks(vnode.attrs, vnode)
+      switch (vnode.tag) {
+        case '#': write(escapeText('' + vnode.children)); break
+        case '<': write(vnode.children); break
+        case '[': renderChildren(vnode.children); break
+        default: renderElement(vnode)
+      }
+    } else {
+      renderComponent(vnode)
+    }
+  }
+
+  renderNode(Vnode.normalize(view))
+
+  for (const hook of hooks) hook()
+  return result.concat() // hint to flatten
 }
 
 module.exports = render
-module.exports.escapeHtml = escapeHtml
+module.exports.escapeText = defaults.escapeText
+module.exports.escapeAttribute = defaults.escapeAttribute

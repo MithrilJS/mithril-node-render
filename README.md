@@ -67,17 +67,21 @@ Optionally pass in options as an object: `m.render(component, options)`.
 
 The following options are supported:
 
-**escapeAttributeValue(value)**
-`Default: render.escapeHtml`
+**escapeAttribute(value)**
+`Default: render.escapeAttribute`
 A filter function for attribute values. Receives value, returns what is printed.
 
-**escapeString(value)**
-`Default: render.escapeHtml`
+**escapeText(value)**
+`Default: render.escapeText`
 A filter function for string nodes. Receives value, returns what is printed.
 
 **strict**
 `Default: false`
-Set this to true to close all empty tags automatically. Default is HTML mode where tags like `<br>` and `<meta>` are allowed without closing tags. This is required if you're rendering XML or XHTML documents.
+Set this to true to close all empty tags automatically. Default is standard HTML mode where tags like `<br>` and `<meta>` are allowed to implicitly close themselves. This should be set to `true` if you're rendering XML-compatible HTML documents.
+
+**xml**
+`Default: false`
+Set this to true to render as generic XML instead of (possibly XML-compatible) HTML. Default is HTML mode, where children of void elements are ignored. This implies `strict: true`.
 
 
 See also
