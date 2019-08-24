@@ -1,8 +1,7 @@
 'use strict'
 
 const o = require('ospec')
-const m = require('mithril/render/hyperscript')
-const mTrust = require('mithril/render/trust')
+const m = require('mithril/hyperscript')
 const render = require('./index')
 
 const ES6ClassComponent = require('./tests/fixtures/es6_class_component')
@@ -11,83 +10,83 @@ const FunctionClassComponent = require('./tests/fixtures/function_class_componen
 
 o.spec('render', () => {
   o('should render tag', () => {
-    o(render(m('span', 'content'))).equals('<span>content</span>')
+    o(render.sync(m('span', 'content'))).equals('<span>content</span>')
   })
   o('should render classname', () => {
-    o(render(m('.foo', 'content'))).equals(
+    o(render.sync(m('.foo', 'content'))).equals(
       '<div class="foo">content</div>'
     )()
   })
 
   o('should render id', () => {
-    o(render(m('#bar', 'content'))).equals(
+    o(render.sync(m('#bar', 'content'))).equals(
       '<div id="bar">content</div>'
     )()
   })
 
   o('should render short nodes when no children', () => {
-    o(render(m('br'))).equals(
+    o(render.sync(m('br'))).equals(
       '<br>'
     )()
   })
 
   o('should render short nodes when no children and tag name is uppercase', () => {
-    o(render(m('HR'))).equals(
+    o(render.sync(m('HR'))).equals(
       '<HR>'
     )()
   })
 
   o('should render short node doctype', () => {
-    o(render(m('!doctype'))).equals(
+    o(render.sync(m('!doctype'))).equals(
       '<!doctype>'
     )()
   })
 
   o('should render short node doctype HTML5', () => {
-    o(render(m('!doctype', { html: true }))).equals(
+    o(render.sync(m('!doctype', { html: true }))).equals(
       '<!doctype html>'
     )()
   })
 
   o('should render attributes', () => {
-    o(render(m('span', { 'data-foo': 'bar', selected: 'selected' }))).equals(
+    o(render.sync(m('span', { 'data-foo': 'bar', selected: 'selected' }))).equals(
       '<span data-foo="bar" selected="selected"></span>'
     )()
   })
 
   o('should render string', () => {
-    o(render(m('ul', 'huhu'))).equals(
+    o(render.sync(m('ul', 'huhu'))).equals(
       '<ul>huhu</ul>'
     )()
   })
 
   o('should render arrays', () => {
-    o(render([m('span', 'foo'), m('div', 'bar')])).equals(
+    o(render.sync([m('span', 'foo'), m('div', 'bar')])).equals(
       '<span>foo</span><div>bar</div>'
     )()
   })
 
   o('should render nested arrays', () => {
-    o(render(m('div', [[m('span', 'foo'), m('div', 'bar')]]))).equals(
+    o(render.sync(m('div', [[m('span', 'foo'), m('div', 'bar')]]))).equals(
       '<div><span>foo</span><div>bar</div></div>'
     )()
   })
 
   o('should render children', () => {
-    o(render(m('span', m('div')))).equals(
+    o(render.sync(m('span', m('div')))).equals(
       '<span><div></div></span>'
     )()
   })
 
   o('should not render events', () => {
-    o(render(m('span', { onmousemove (event) {} }))).equals(
+    o(render.sync(m('span', { onmousemove (event) {} }))).equals(
       '<span></span>'
     )()
   })
 
   o('should render simple styles', () => {
     o(
-      render(
+      render.sync(
         m('div', { style: { height: '20px', color: '', width: '10px' } })
       )
     ).equals('<div style="height:20px;width:10px"></div>')
@@ -95,74 +94,74 @@ o.spec('render', () => {
 
   o('should render camelcase styles', () => {
     o(
-      render(m('span', { style: { paddingLeft: '10px', color: 'red' } }))
+      render.sync(m('span', { style: { paddingLeft: '10px', color: 'red' } }))
     ).equals(
       '<span style="padding-left:10px;color:red"></span>'
     )
   })
 
   o('should render numbers as text nodes', () => {
-    o(render(m('div', [1, m('span'), '2']))).equals(
+    o(render.sync(m('div', [1, m('span'), '2']))).equals(
       '<div>1<span></span>2</div>'
     )
   })
 
   o('renders attributes', () => {
-    o(render(m('div', 0))).equals('<div>0</div>')
-    o(render(m('div', false))).equals('<div></div>')
-    o(render(m('div', { a: true }))).equals('<div a></div>')
-    o(render(m('div', { a: false }))).equals('<div></div>')
-    o(render(m('div', { a: undefined }))).equals('<div></div>')
-    o(render(m('div', { style: null }))).equals('<div></div>')
-    o(render(m('div', { style: '' }))).equals('<div style></div>')
-    o(render(m('div', { style: { color: '' } }))).equals('<div></div>')
-    o(render(m('div', { style: { height: '20px', color: '' } }))).equals(
+    o(render.sync(m('div', 0))).equals('<div>0</div>')
+    o(render.sync(m('div', false))).equals('<div></div>')
+    o(render.sync(m('div', { a: true }))).equals('<div a></div>')
+    o(render.sync(m('div', { a: false }))).equals('<div></div>')
+    o(render.sync(m('div', { a: undefined }))).equals('<div></div>')
+    o(render.sync(m('div', { style: null }))).equals('<div></div>')
+    o(render.sync(m('div', { style: '' }))).equals('<div style></div>')
+    o(render.sync(m('div', { style: { color: '' } }))).equals('<div></div>')
+    o(render.sync(m('div', { style: { height: '20px', color: '' } }))).equals(
       '<div style="height:20px"></div>'
     )
 
     o(
-      render(
+      render.sync(
         m('div', { style: { height: '20px', color: '', width: '10px' } })
       )
     ).equals('<div style="height:20px;width:10px"></div>')
-    o(render(m('div', { a: 'foo' }))).equals('<div a="foo"></div>')
-    o(render(m('div', mTrust('<foo></foo>')))).equals(
+    o(render.sync(m('div', { a: 'foo' }))).equals('<div a="foo"></div>')
+    o(render.sync(m('div', m.trust('<foo></foo>')))).equals(
       '<div><foo></foo></div>'
     )
-    o(render(m('div', '<foo></foo>'))).equals(
+    o(render.sync(m('div', '<foo></foo>'))).equals(
       '<div>&lt;foo&gt;&lt;/foo&gt;</div>'
     )
-    o(render(m('div', { style: '"></div><div a="' }))).equals(
+    o(render.sync(m('div', { style: '"></div><div a="' }))).equals(
       '<div style="&quot;&gt;&lt;/div&gt;&lt;div a=&quot;"></div>'
     )
     o(
-      render(m('div', { style: '"></div><div a="' }), {
+      render.sync(m('div', { style: '"></div><div a="' }), {
         escapeAttribute (value) {
           return value
         }
       })
     ).equals('<div style=""></div><div a=""></div>')
-    o(render(m('pre', 'var = ' + JSON.stringify({ foo: 1 })))).equals(
+    o(render.sync(m('pre', 'var = ' + JSON.stringify({ foo: 1 })))).equals(
       '<pre>var = {"foo":1}</pre>'
     )
   })
 
   o('renders svg xlink:href correctly', () => {
-    o(render(m('svg', m('use', { href: 'fooga.com' })))).equals(
+    o(render.sync(m('svg', m('use', { href: 'fooga.com' })))).equals(
       '<svg><use href="fooga.com"></use></svg>'
     )
-    o(render(m('svg', m('use', { 'xlink:href': 'fooga.com' })))).equals(
+    o(render.sync(m('svg', m('use', { 'xlink:href': 'fooga.com' })))).equals(
       '<svg><use xlink:href="fooga.com"></use></svg>'
     )
   })
 
   o('should render closed input-tag', () => {
-    o(render(m('input'), { strict: true })).equals('<input/>')
-    o(render(m('input'), { strict: true, xml: true })).equals('<input></input>')
+    o(render.sync(m('input'), { strict: true })).equals('<input/>')
+    o(render.sync(m('input'), { strict: true, xml: true })).equals('<input></input>')
   })
   o('should render closed div-tag', () => {
-    o(render(m('div'), { strict: true })).equals('<div></div>')
-    o(render(m('div'), { strict: true, xml: true })).equals('<div></div>')
+    o(render.sync(m('div'), { strict: true })).equals('<div></div>')
+    o(render.sync(m('div'), { strict: true, xml: true })).equals('<div></div>')
   })
 })
 
@@ -184,15 +183,15 @@ o.spec('components', () => {
 
   o('embedded', () => {
     o(onremove.callCount).equals(0)
-    o(render(m('div', m(myComponent)))).equals(
+    o(render.sync(m('div', m(myComponent)))).equals(
       '<div><div>hellobar</div></div>'
     )
     o(onremove.callCount).equals(1)
-    o(render(m('span', m(myComponent, { foo: 'foz' })))).equals(
+    o(render.sync(m('span', m(myComponent, { foo: 'foz' })))).equals(
       '<span><div>hellobarfoz</div></span>'
     )
     o(
-      render(
+      render.sync(
         m(
           'div',
           m({
@@ -205,7 +204,7 @@ o.spec('components', () => {
       )
     ).equals('<div><span>huhu</span></div>')
     o(
-      render(
+      render.sync(
         m(
           'div',
           m({
@@ -219,8 +218,8 @@ o.spec('components', () => {
   })
 
   o('as root', () => {
-    o(render(myComponent)).equals('<div>hellobar</div>')
-    o(render(myComponent, { foo: '-attr-foo' })).equals(
+    o(render.sync(myComponent)).equals('<div>hellobar</div>')
+    o(render.sync(myComponent, { foo: '-attr-foo' })).equals(
       '<div>hellobar-attr-foo</div>'
     )
   })
@@ -232,17 +231,17 @@ o.spec('components', () => {
       }
     }
 
-    o(render(m(parentComponent, 'howdy'))).equals('<div>howdy</div>')
-    o(render(m(parentComponent, m('span', 'howdy')))).equals(
+    o(render.sync(m(parentComponent, 'howdy'))).equals('<div>howdy</div>')
+    o(render.sync(m(parentComponent, m('span', 'howdy')))).equals(
       '<div><span>howdy</span></div>'
     )
     o(
-      render(m(parentComponent, [m('span', 'foo'), m('span', 'bar')]))
+      render.sync(m(parentComponent, [m('span', 'foo'), m('span', 'bar')]))
     ).equals('<div><span>foo</span><span>bar</span></div>')
     o(
-      render(m(parentComponent, m.trust('<span>trust me</span>')))
+      render.sync(m(parentComponent, m.trust('<span>trust me</span>')))
     ).equals('<div><span>trust me</span></div>')
-    o(render(m(parentComponent, m(myComponent, { foo: 'foz' })))).equals(
+    o(render.sync(m(parentComponent, m(myComponent, { foo: 'foz' })))).equals(
       '<div><div>hellobarfoz</div></div>'
     )
   })
@@ -253,7 +252,7 @@ o.spec('components', () => {
         return m('span', ['huh', '> >'])
       }
     }
-    const out = render(component)
+    const out = render.sync(component)
     o(out).equals('<span>huh&gt; &gt;</span>')
   })
 })
@@ -268,17 +267,17 @@ for (const type in classComponents) {
     const classComponent = classComponents[type]
 
     o('embedded', () => {
-      o(render(m('div', m(classComponent)))).equals(
+      o(render.sync(m('div', m(classComponent)))).equals(
         '<div><div>hellobar</div></div>'
       )
-      o(render(m('span', m(classComponent, { foo: 'foz' })))).equals(
+      o(render.sync(m('span', m(classComponent, { foo: 'foz' })))).equals(
         '<span><div>hellobarfoz</div></span>'
       )
     })
 
     o('as root', () => {
-      o(render(classComponent)).equals('<div>hellobar</div>')
-      o(render(classComponent, { foo: '-attr-foo' })).equals(
+      o(render.sync(classComponent)).equals('<div>hellobar</div>')
+      o(render.sync(classComponent, { foo: '-attr-foo' })).equals(
         '<div>hellobar-attr-foo</div>'
       )
     })
@@ -313,7 +312,7 @@ o('`this` in component', () => {
     bar: 4
   }
 
-  o(render([m(myComponent), m(myComponent)])).equals(
+  o(render.sync([m(myComponent), m(myComponent)])).equals(
     '<div>hello</div><div>hello</div>'
   )
 
@@ -324,7 +323,7 @@ o('`this` in component', () => {
 
 o('lifecycle hooks as attributes on elements', () => {
   let initialized, removed
-  render(
+  render.sync(
     m('p', {
       oninit (vnode) {
         initialized = true
@@ -367,7 +366,7 @@ o('lifecycle hooks as attributes on components', () => {
     }
   }
   o(
-    render(
+    render.sync(
       m(myComponent, {
         oninit (vnode) {
           o(this).equals(vnode.state)(
@@ -420,7 +419,7 @@ o('lifecycle hooks of class component', () => {
       return m('p', 'hello')
     }
   }
-  o(render(m(classComponent))).equals('<p>hello</p>')
+  o(render.sync(m(classComponent))).equals('<p>hello</p>')
   o(initialized).equals(true)('classComponent#oninit should run')
   o(removed).equals(true)('classComponent#onremove should run')
 })
@@ -442,7 +441,7 @@ o(
       },
       onremove
     }
-    render([m(myComponent, attrs), m(myComponent, attrs)])
+    render.sync([m(myComponent, attrs), m(myComponent, attrs)])
 
     /*
   We just rendered two components, and each has three sets of hooks defined:
@@ -472,7 +471,7 @@ o('hooks are called top-down, depth-first on elements', () => {
   let pRemoved = false
   let aRemoved = false
   let ulRemoved = false
-  const html = render([
+  const html = render.sync([
     m(
       'p',
       {
@@ -526,9 +525,55 @@ o('hooks are called top-down, depth-first on elements', () => {
 })
 
 o.spec('async', () => {
-  o('render object components', () => {
+  o('render object components', async () => {
+    const oninitSpy = o.spy()
+    const viewSpy = o.spy()
     const myAsyncComponent = {
-      oninit (vnode) {
+      oninit (vnode, waitFor) {
+        this.foo = 'bar'
+        oninitSpy()
+        waitFor(Promise.resolve().then(() => { this.foo = 'baz' }))
+      },
+      view (vnode) {
+        viewSpy()
+        return m('div', this.foo)
+      }
+    }
+
+    const p = render(myAsyncComponent)
+    o(oninitSpy.callCount).equals(1)
+    o(viewSpy.callCount).equals(0)
+    const html = await p
+    o(html).equals('<div>baz</div>')
+    o(oninitSpy.callCount).equals(1)
+    o(viewSpy.callCount).equals(1)
+  })
+
+  o('render nodes', async () => {
+    const oninitSpy = o.spy()
+    const html = await render(
+      m(
+        'span',
+        {
+          oninit (node, waitFor) {
+            waitFor(new Promise(resolve => {
+              oninitSpy()
+              setTimeout(resolve, 10)
+            }))
+          }
+        },
+        'foo'
+      )
+    )
+    o(html).equals('<span>foo</span>')
+    o(oninitSpy.callCount).equals(1)
+  })
+
+  o('render object components sync', () => {
+    const waitFors = []
+    const myAsyncComponent = {
+      oninit (vnode, waitFor) {
+        waitFors.push(waitFor)
         this.foo = 'bar'
         return Promise.resolve().then(() => { this.foo = 'baz' })
       },
@@ -537,17 +582,20 @@ o.spec('async', () => {
       }
     }
 
-    const html = render(myAsyncComponent)
+    const html = render.sync(myAsyncComponent)
+    o(waitFors).deepEquals([undefined])
     o(html).equals('<div>bar</div>')
   })
 
-  o('render nodes', () => {
+  o('render nodes sync', () => {
+    const waitFors = []
     const oninitSpy = o.spy()
-    const html = render(
+    const html = render.sync(
       m(
         'span',
         {
-          oninit (node) {
+          oninit (node, waitFor) {
+            waitFors.push(waitFor)
             return new Promise(resolve => {
               oninitSpy()
               setTimeout(resolve, 10)
@@ -557,6 +605,7 @@ o.spec('async', () => {
         'foo'
       )
     )
+    o(waitFors).deepEquals([undefined])
     o(html).equals('<span>foo</span>')
     o(oninitSpy.callCount).equals(1)
   })
@@ -570,7 +619,7 @@ o('render closure components', () => {
       }
     }
   }
-  o(render(closureComponent())).equals('<p>p</p>')
+  o(render.sync(closureComponent())).equals('<p>p</p>')
 })
 
 o.run()

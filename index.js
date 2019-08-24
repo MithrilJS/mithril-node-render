@@ -59,9 +59,13 @@ function bindOpt (options, key) {
   return options[key] ? options[key].bind(options) : defaults[key]
 }
 
-function render (view, attrs, options) {
+// Using a generator so I can just yield promises that need awaited. Can't just
+// use `async`/`await` since this is used for both sync and async renders. At
+// least I have generators (read: coroutines), or I'd have to implement this
+// using a giant pushdown automaton. :-)
+function * tryRender (view, attrs, options, allowAwait) {
   // Fast-path a very simple case. Also lets me perform some renderer
-  // optimizations.
+  // optimizations later.
   if (view == null) return ''
   if (view.view || typeof view === 'function') {
     // root component
@@ -81,13 +85,17 @@ function render (view, attrs, options) {
     result = '' + result + value
   }
 
-  function setHooks (source, vnode) {
+  function * setHooks (source, vnode) {
+    const promises = []
+    let waitFor
+    if (allowAwait) waitFor = p => { promises.push(p) }
     if (source.oninit) {
-      source.oninit.call(vnode.state, vnode)
+      source.oninit.call(vnode.state, vnode, waitFor)
     }
     if (source.onremove) {
       hooks.push(source.onremove.bind(vnode.state, vnode))
     }
+    if (promises.length) yield promises
   }
 
   function createAttrString (view) {
@@ -124,7 +132,7 @@ function render (view, attrs, options) {
     }
   }
 
-  function renderComponent (vnode) {
+  function * renderComponent (vnode) {
     if (typeof vnode.tag !== 'function') {
       vnode.state = Object.create(vnode.tag)
     } else if (vnode.tag.prototype && vnode.tag.prototype.view) {
@@ -133,13 +141,13 @@ function render (view, attrs, options) {
       vnode.state = vnode.tag(vnode)
     }
 
-    setHooks(vnode.state, vnode)
-    if (vnode.attrs != null) setHooks(vnode.attrs, vnode)
+    yield * setHooks(vnode.state, vnode)
+    if (vnode.attrs != null) yield * setHooks(vnode.attrs, vnode)
     vnode.instance = Vnode.normalize(vnode.state.view(vnode))
-    if (vnode.instance != null) renderNode(vnode.instance)
+    if (vnode.instance != null) yield * renderNode(vnode.instance)
   }
 
-  function renderElement (vnode) {
+  function * renderElement (vnode) {
     write(`<${vnode.tag}`)
     createAttrString(vnode)
     // Don't write children for void HTML elements
@@ -151,40 +159,51 @@ function render (view, attrs, options) {
         const text = '' + vnode.text
         if (text !== '') write(escapeText(text))
       } else {
-        renderChildren(vnode.children)
+        yield * renderChildren(vnode.children)
       }
       write(`</${vnode.tag}>`)
     }
   }
 
-  function renderChildren (vnodes) {
+  function * renderChildren (vnodes) {
     for (const v of vnodes) {
-      if (v != null) renderNode(v)
+      if (v != null) yield * renderNode(v)
     }
   }
 
-  function renderNode (vnode) {
+  function * renderNode (vnode) {
     if (vnode == null) return
     if (typeof vnode.tag === 'string') {
       vnode.state = {}
-      if (vnode.attrs != null) setHooks(vnode.attrs, vnode)
+      if (vnode.attrs != null) yield * setHooks(vnode.attrs, vnode)
       switch (vnode.tag) {
         case '#': write(escapeText('' + vnode.children)); break
         case '<': write(vnode.children); break
-        case '[': renderChildren(vnode.children); break
-        default: renderElement(vnode)
+        case '[': yield * renderChildren(vnode.children); break
+        default: yield * renderElement(vnode)
       }
     } else {
-      renderComponent(vnode)
+      yield * renderComponent(vnode)
     }
   }
 
-  renderNode(Vnode.normalize(view))
-
+  yield * renderNode(Vnode.normalize(view))
   for (const hook of hooks) hook()
   return result.concat() // hint to flatten
 }
 
-module.exports = render
+module.exports = async (view, attrs, options) => {
+  const iter = tryRender(view, attrs, options, true)
+  while (true) {
+    const {done, value} = iter.next()
+    if (done) return value
+    await Promise.all(value)
+  }
+}
+
+module.exports.sync = (view, attrs, options) => {
+  return tryRender(view, attrs, options, false).next().value
+}
+
 module.exports.escapeText = defaults.escapeText
 module.exports.escapeAttribute = defaults.escapeAttribute
