@@ -3,42 +3,45 @@
 const m = require('mithril/hyperscript')
 const Vnode = require('mithril/render/vnode')
 
-const VOID_TAGS = new RegExp('^(?:' +
-  'area|' +
-  'base|' +
-  'br|' +
-  'col|' +
-  'command|' +
-  'embed|' +
-  'hr|' +
-  'img|' +
-  'input|' +
-  'keygen|' +
-  'link|' +
-  'meta|' +
-  'param|' +
-  'source|' +
-  'track|' +
-  'wbr|' +
-  '!doctype' +
-')$', 'i')
+const VOID_TAGS = new RegExp(
+  '^(?:' +
+    'area|' +
+    'base|' +
+    'br|' +
+    'col|' +
+    'command|' +
+    'embed|' +
+    'hr|' +
+    'img|' +
+    'input|' +
+    'keygen|' +
+    'link|' +
+    'meta|' +
+    'param|' +
+    'source|' +
+    'track|' +
+    'wbr|' +
+    '!doctype' +
+    ')$',
+  'i'
+)
 
 const hasOwn = {}.hasOwnProperty
 
-function toStyleKey (str) {
+function toStyleKey(str) {
   return str
     .replace(/\W+/g, '-')
     .replace(/([a-z\d])([A-Z])/g, '$1-$2')
     .toLowerCase()
 }
 
-function replaceHtml (m) {
+function replaceHtml(m) {
   if (m === '&') return '&amp;'
   if (m === '<') return '&lt;'
   return '&gt;'
 }
 
-function replaceAttribute (m) {
+function replaceAttribute(m) {
   if (m === '&') return '&amp;'
   if (m === '<') return '&lt;'
   if (m === '>') return '&gt;'
@@ -46,16 +49,16 @@ function replaceAttribute (m) {
 }
 
 const defaults = {
-  escapeText (s) {
+  escapeText(s) {
     return s.replace(/[&<>]/g, replaceHtml)
   },
 
-  escapeAttribute (s) {
+  escapeAttribute(s) {
     return s.replace(/[&<>"]/g, replaceAttribute)
-  }
+  },
 }
 
-function bindOpt (options, key) {
+function bindOpt(options, key) {
   return options[key] ? options[key].bind(options) : defaults[key]
 }
 
@@ -63,7 +66,7 @@ function bindOpt (options, key) {
 // use `async`/`await` since this is used for both sync and async renders. At
 // least I have generators (read: coroutines), or I'd have to implement this
 // using a giant pushdown automaton. :-)
-function * tryRender (view, attrs, options, allowAwait) {
+function* tryRender(view, attrs, options, allowAwait) {
   // Fast-path a very simple case. Also lets me perform some renderer
   // optimizations later.
   if (view == null) return ''
@@ -81,14 +84,17 @@ function * tryRender (view, attrs, options, allowAwait) {
   const xml = !!options.xml
   const strict = xml || !!options.strict
 
-  function write (value) {
+  function write(value) {
     result = '' + result + value
   }
 
-  function * setHooks (source, vnode) {
+  function* setHooks(source, vnode) {
     const promises = []
     let waitFor
-    if (allowAwait) waitFor = p => { promises.push(p) }
+    if (allowAwait)
+      waitFor = p => {
+        promises.push(p)
+      }
     if (source.oninit) {
       source.oninit.call(vnode.state, vnode, waitFor)
     }
@@ -98,7 +104,7 @@ function * tryRender (view, attrs, options, allowAwait) {
     if (promises.length) yield promises
   }
 
-  function createAttrString (view) {
+  function createAttrString(view) {
     for (const key in view.attrs) {
       if (hasOwn.call(view.attrs, key)) {
         let value = view.attrs[key]
@@ -132,7 +138,7 @@ function * tryRender (view, attrs, options, allowAwait) {
     }
   }
 
-  function * renderComponent (vnode) {
+  function* renderComponent(vnode) {
     if (typeof vnode.tag !== 'function') {
       vnode.state = Object.create(vnode.tag)
     } else if (vnode.tag.prototype && vnode.tag.prototype.view) {
@@ -141,13 +147,13 @@ function * tryRender (view, attrs, options, allowAwait) {
       vnode.state = vnode.tag(vnode)
     }
 
-    yield * setHooks(vnode.state, vnode)
-    if (vnode.attrs != null) yield * setHooks(vnode.attrs, vnode)
+    yield* setHooks(vnode.state, vnode)
+    if (vnode.attrs != null) yield* setHooks(vnode.attrs, vnode)
     vnode.instance = Vnode.normalize(vnode.state.view(vnode))
-    if (vnode.instance != null) yield * renderNode(vnode.instance)
+    if (vnode.instance != null) yield* renderNode(vnode.instance)
   }
 
-  function * renderElement (vnode) {
+  function* renderElement(vnode) {
     write(`<${vnode.tag}`)
     createAttrString(vnode)
     // Don't write children for void HTML elements
@@ -159,43 +165,51 @@ function * tryRender (view, attrs, options, allowAwait) {
         const text = '' + vnode.text
         if (text !== '') write(escapeText(text))
       } else {
-        yield * renderChildren(vnode.children)
+        yield* renderChildren(vnode.children)
       }
       write(`</${vnode.tag}>`)
     }
   }
 
-  function * renderChildren (vnodes) {
+  function* renderChildren(vnodes) {
     for (const v of vnodes) {
-      if (v != null) yield * renderNode(v)
+      if (v != null) yield* renderNode(v)
     }
   }
 
-  function * renderNode (vnode) {
+  function* renderNode(vnode) {
     if (vnode == null) return
     if (typeof vnode.tag === 'string') {
       vnode.state = {}
-      if (vnode.attrs != null) yield * setHooks(vnode.attrs, vnode)
+      if (vnode.attrs != null) yield* setHooks(vnode.attrs, vnode)
       switch (vnode.tag) {
-        case '#': write(escapeText('' + vnode.children)); break
-        case '<': write(vnode.children); break
-        case '[': yield * renderChildren(vnode.children); break
-        default: yield * renderElement(vnode)
+        case '#':
+          write(escapeText('' + vnode.children))
+          break
+        case '<':
+          write(vnode.children)
+          break
+        case '[':
+          yield* renderChildren(vnode.children)
+          break
+        default:
+          yield* renderElement(vnode)
       }
     } else {
-      yield * renderComponent(vnode)
+      yield* renderComponent(vnode)
     }
   }
 
-  yield * renderNode(Vnode.normalize(view))
+  yield* renderNode(Vnode.normalize(view))
   for (const hook of hooks) hook()
   return result.concat() // hint to flatten
 }
 
 module.exports = async (view, attrs, options) => {
   const iter = tryRender(view, attrs, options, true)
+  // eslint-disable-next-line no-constant-condition
   while (true) {
-    const {done, value} = iter.next()
+    const { done, value } = iter.next()
     if (done) return value
     await Promise.all(value)
   }

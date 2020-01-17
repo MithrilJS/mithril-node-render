@@ -19,45 +19,36 @@ o.spec('render', () => {
   })
 
   o('should render id', () => {
-    o(render.sync(m('#bar', 'content'))).equals(
-      '<div id="bar">content</div>'
-    )()
+    o(render.sync(m('#bar', 'content'))).equals('<div id="bar">content</div>')()
   })
 
   o('should render short nodes when no children', () => {
-    o(render.sync(m('br'))).equals(
-      '<br>'
-    )()
+    o(render.sync(m('br'))).equals('<br>')()
   })
 
-  o('should render short nodes when no children and tag name is uppercase', () => {
-    o(render.sync(m('HR'))).equals(
-      '<HR>'
-    )()
-  })
+  o(
+    'should render short nodes when no children and tag name is uppercase',
+    () => {
+      o(render.sync(m('HR'))).equals('<HR>')()
+    }
+  )
 
   o('should render short node doctype', () => {
-    o(render.sync(m('!doctype'))).equals(
-      '<!doctype>'
-    )()
+    o(render.sync(m('!doctype'))).equals('<!doctype>')()
   })
 
   o('should render short node doctype HTML5', () => {
-    o(render.sync(m('!doctype', { html: true }))).equals(
-      '<!doctype html>'
-    )()
+    o(render.sync(m('!doctype', { html: true }))).equals('<!doctype html>')()
   })
 
   o('should render attributes', () => {
-    o(render.sync(m('span', { 'data-foo': 'bar', selected: 'selected' }))).equals(
-      '<span data-foo="bar" selected="selected"></span>'
-    )()
+    o(
+      render.sync(m('span', { 'data-foo': 'bar', selected: 'selected' }))
+    ).equals('<span data-foo="bar" selected="selected"></span>')()
   })
 
   o('should render string', () => {
-    o(render.sync(m('ul', 'huhu'))).equals(
-      '<ul>huhu</ul>'
-    )()
+    o(render.sync(m('ul', 'huhu'))).equals('<ul>huhu</ul>')()
   })
 
   o('should render arrays', () => {
@@ -73,15 +64,11 @@ o.spec('render', () => {
   })
 
   o('should render children', () => {
-    o(render.sync(m('span', m('div')))).equals(
-      '<span><div></div></span>'
-    )()
+    o(render.sync(m('span', m('div')))).equals('<span><div></div></span>')()
   })
 
   o('should not render events', () => {
-    o(render.sync(m('span', { onmousemove (event) {} }))).equals(
-      '<span></span>'
-    )()
+    o(render.sync(m('span', { onmousemove() {} }))).equals('<span></span>')()
   })
 
   o('should render simple styles', () => {
@@ -95,9 +82,7 @@ o.spec('render', () => {
   o('should render camelcase styles', () => {
     o(
       render.sync(m('span', { style: { paddingLeft: '10px', color: 'red' } }))
-    ).equals(
-      '<span style="padding-left:10px;color:red"></span>'
-    )
+    ).equals('<span style="padding-left:10px;color:red"></span>')
   })
 
   o('should render numbers as text nodes', () => {
@@ -112,6 +97,8 @@ o.spec('render', () => {
     o(render.sync(m('div', { a: true }))).equals('<div a></div>')
     o(render.sync(m('div', { a: false }))).equals('<div></div>')
     o(render.sync(m('div', { a: undefined }))).equals('<div></div>')
+    o(render.sync(m('div', { a: 1 }))).equals('<div a="1"></div>')
+    o(render.sync(m('div', { key: 1 }))).equals('<div></div>')
     o(render.sync(m('div', { style: null }))).equals('<div></div>')
     o(render.sync(m('div', { style: '' }))).equals('<div style></div>')
     o(render.sync(m('div', { style: { color: '' } }))).equals('<div></div>')
@@ -136,9 +123,9 @@ o.spec('render', () => {
     )
     o(
       render.sync(m('div', { style: '"></div><div a="' }), {
-        escapeAttribute (value) {
+        escapeAttribute(value) {
           return value
-        }
+        },
       })
     ).equals('<div style=""></div><div a=""></div>')
     o(render.sync(m('pre', 'var = ' + JSON.stringify({ foo: 1 })))).equals(
@@ -157,7 +144,9 @@ o.spec('render', () => {
 
   o('should render closed input-tag', () => {
     o(render.sync(m('input'), { strict: true })).equals('<input/>')
-    o(render.sync(m('input'), { strict: true, xml: true })).equals('<input></input>')
+    o(render.sync(m('input'), { strict: true, xml: true })).equals(
+      '<input></input>'
+    )
   })
   o('should render closed div-tag', () => {
     o(render.sync(m('div'), { strict: true })).equals('<div></div>')
@@ -171,13 +160,13 @@ o.spec('components', () => {
   o.beforeEach(() => {
     onremove = o.spy()
     myComponent = {
-      oninit (node) {
+      oninit(node) {
         node.state.foo = 'bar'
       },
       onremove,
-      view (node) {
+      view(node) {
         return m('div', ['hello', node.state.foo, node.attrs.foo])
-      }
+      },
     }
   })
 
@@ -195,10 +184,10 @@ o.spec('components', () => {
         m(
           'div',
           m({
-            oninit () {},
-            view () {
+            oninit() {},
+            view() {
               return m('span', 'huhu')
-            }
+            },
           })
         )
       )
@@ -208,9 +197,9 @@ o.spec('components', () => {
         m(
           'div',
           m({
-            view () {
+            view() {
               return m('span', 'huhu')
-            }
+            },
           })
         )
       )
@@ -226,9 +215,9 @@ o.spec('components', () => {
 
   o('with children', () => {
     const parentComponent = {
-      view (node) {
+      view(node) {
         return m('div', node.children)
-      }
+      },
     }
 
     o(render.sync(m(parentComponent, 'howdy'))).equals('<div>howdy</div>')
@@ -238,9 +227,9 @@ o.spec('components', () => {
     o(
       render.sync(m(parentComponent, [m('span', 'foo'), m('span', 'bar')]))
     ).equals('<div><span>foo</span><span>bar</span></div>')
-    o(
-      render.sync(m(parentComponent, m.trust('<span>trust me</span>')))
-    ).equals('<div><span>trust me</span></div>')
+    o(render.sync(m(parentComponent, m.trust('<span>trust me</span>')))).equals(
+      '<div><span>trust me</span></div>'
+    )
     o(render.sync(m(parentComponent, m(myComponent, { foo: 'foz' })))).equals(
       '<div><div>hellobarfoz</div></div>'
     )
@@ -248,9 +237,9 @@ o.spec('components', () => {
 
   o('quouting html content right', () => {
     const component = {
-      view (node) {
+      view() {
         return m('span', ['huh', '> >'])
-      }
+      },
     }
     const out = render.sync(component)
     o(out).equals('<span>huh&gt; &gt;</span>')
@@ -260,7 +249,7 @@ o.spec('components', () => {
 const classComponents = {
   es6: ES6ClassComponent,
   babel: BabelClassComponent,
-  function: FunctionClassComponent
+  function: FunctionClassComponent,
 }
 for (const type in classComponents) {
   o.spec('component of ' + type + ' class', () => {
@@ -287,7 +276,7 @@ for (const type in classComponents) {
 o('`this` in component', () => {
   const oninit = o.spy()
   const myComponent = {
-    oninit (vnode) {
+    oninit(vnode) {
       oninit()
       o(this).equals(vnode.state)(
         'vnode.state should be the context in `oninit`'
@@ -298,45 +287,45 @@ o('`this` in component', () => {
         'component properties should be copied to the state'
       )
     },
-    view (vnode) {
+    view(vnode) {
       o(this).equals(vnode.state)(
         'vnode.state should be the context in the view'
       )
       return m('div', 'hello')
     },
-    onremove (vnode) {
+    onremove(vnode) {
       o(this).equals(vnode.state)(
         'vnode.state should be the context in `onremove`'
       )
     },
-    bar: 4
+    bar: 4,
   }
 
   o(render.sync([m(myComponent), m(myComponent)])).equals(
     '<div>hello</div><div>hello</div>'
   )
 
-  o(oninit.callCount).equals(
-    2
-  )('the component should have been initialized twice')
+  o(oninit.callCount).equals(2)(
+    'the component should have been initialized twice'
+  )
 })
 
 o('lifecycle hooks as attributes on elements', () => {
   let initialized, removed
   render.sync(
     m('p', {
-      oninit (vnode) {
+      oninit(vnode) {
         initialized = true
         o(this).equals(vnode.state)(
           'vnode.state should be the context in `oninit`'
         )
       },
-      onremove (vnode) {
+      onremove(vnode) {
         removed = true
         o(this).equals(vnode.state)(
           'vnode.state should be the context in `onremove`'
         )
-      }
+      },
     })
   )
   o(initialized).equals(true)('attr.oninit should run')
@@ -349,26 +338,26 @@ o('lifecycle hooks as attributes on components', () => {
   let tagInitialized = false
   let tagRemoved = false
   const myComponent = {
-    oninit () {
+    oninit() {
       o(attrInitialized).equals(false)(
         '`attr.oninit()` should run after `tag.oninit()`'
       )
       tagInitialized = true
     },
-    view () {
+    view() {
       return m('p', 'p')
     },
-    onremove () {
+    onremove() {
       o(attrRemoved).equals(false)(
         '`attr.onremove()` should run after `tag.onremove()`'
       )
       tagRemoved = true
-    }
+    },
   }
   o(
     render.sync(
       m(myComponent, {
-        oninit (vnode) {
+        oninit(vnode) {
           o(this).equals(vnode.state)(
             'vnode.state should be the context in `attr.oninit`'
           )
@@ -377,7 +366,7 @@ o('lifecycle hooks as attributes on components', () => {
             '`attr.oninit()` should run after `tag.oninit()`'
           )
         },
-        onremove (vnode) {
+        onremove(vnode) {
           o(this).equals(vnode.state)(
             'vnode.state should be the context in `attr.onremove`'
           )
@@ -385,7 +374,7 @@ o('lifecycle hooks as attributes on components', () => {
           o(tagRemoved).equals(true)(
             '`attr.onremove()` should run after `tag.onremove()`'
           )
-        }
+        },
       })
     )
   ).equals('<p>p</p>')
@@ -396,24 +385,24 @@ o('lifecycle hooks as attributes on components', () => {
 o('lifecycle hooks of class component', () => {
   let initialized, removed
   const classComponent = class {
-    constructor (vnode) {
+    constructor(vnode) {
       this.vnode = vnode
     }
-    oninit (vnode) {
+    oninit(vnode) {
       initialized = true
       o(this).equals(vnode.state)(
         'vnode.state should be the context in `oninit`'
       )
       o(this.vnode).equals(vnode)('vnode.state equals passed in constructor')
     }
-    onremove (vnode) {
+    onremove(vnode) {
       removed = true
       o(this).equals(vnode.state)(
         'vnode.state should be the context in `onremove`'
       )
       o(this.vnode).equals(vnode)('vnode.state equals passed in constructor')
     }
-    view (vnode) {
+    view(vnode) {
       o(this).equals(vnode.state)('vnode.state should be the context in `view`')
       o(this.vnode).equals(vnode)('vnode.state equals passed in constructor')
       return m('p', 'hello')
@@ -429,17 +418,17 @@ o(
   () => {
     let initialized = 0
     const onremove = o.spy()
-    function oninit () {
+    function oninit() {
       initialized++
       o(onremove.callCount).equals(0)
     }
     const attrs = { oninit, onremove }
     const myComponent = {
       oninit,
-      view () {
+      view() {
         return m('p', attrs, 'p')
       },
-      onremove
+      onremove,
     }
     render.sync([m(myComponent, attrs), m(myComponent, attrs)])
 
@@ -475,30 +464,30 @@ o('hooks are called top-down, depth-first on elements', () => {
     m(
       'p',
       {
-        oninit () {
+        oninit() {
           pInit = true
           o(aInit).equals(false)
           o(ulInit).equals(false)
         },
-        onremove () {
+        onremove() {
           pRemoved = true
           o(aRemoved).equals(false)
           o(ulRemoved).equals(false)
-        }
+        },
       },
       m(
         'a',
         {
-          oninit () {
+          oninit() {
             aInit = true
             o(pInit).equals(true)
             o(ulInit).equals(false)
           },
-          onremove () {
+          onremove() {
             aRemoved = true
             o(pRemoved).equals(true)
             o(ulRemoved).equals(false)
-          }
+          },
         },
         'q'
       )
@@ -506,19 +495,19 @@ o('hooks are called top-down, depth-first on elements', () => {
     m(
       'ul',
       {
-        oninit () {
+        oninit() {
           ulInit = true
           o(pInit).equals(true)
           o(aInit).equals(true)
         },
-        onremove () {
+        onremove() {
           ulRemoved = true
           o(pRemoved).equals(true)
           o(aRemoved).equals(true)
-        }
+        },
       },
       'r'
-    )
+    ),
   ])
   o(html).equals('<p><a>q</a></p><ul>r</ul>')
   o(pInit && ulInit && aInit && pRemoved && ulRemoved && aRemoved).equals(true)
@@ -529,15 +518,19 @@ o.spec('async', () => {
     const oninitSpy = o.spy()
     const viewSpy = o.spy()
     const myAsyncComponent = {
-      oninit (vnode, waitFor) {
+      oninit(vnode, waitFor) {
         this.foo = 'bar'
         oninitSpy()
-        waitFor(Promise.resolve().then(() => { this.foo = 'baz' }))
+        waitFor(
+          Promise.resolve().then(() => {
+            this.foo = 'baz'
+          })
+        )
       },
-      view (vnode) {
+      view() {
         viewSpy()
         return m('div', this.foo)
-      }
+      },
     }
 
     const p = render(myAsyncComponent)
@@ -555,12 +548,14 @@ o.spec('async', () => {
       m(
         'span',
         {
-          oninit (node, waitFor) {
-            waitFor(new Promise(resolve => {
-              oninitSpy()
-              setTimeout(resolve, 10)
-            }))
-          }
+          oninit(node, waitFor) {
+            waitFor(
+              new Promise(resolve => {
+                oninitSpy()
+                setTimeout(resolve, 10)
+              })
+            )
+          },
         },
         'foo'
       )
@@ -572,14 +567,16 @@ o.spec('async', () => {
   o('render object components sync', () => {
     const waitFors = []
     const myAsyncComponent = {
-      oninit (vnode, waitFor) {
+      oninit(vnode, waitFor) {
         waitFors.push(waitFor)
         this.foo = 'bar'
-        return Promise.resolve().then(() => { this.foo = 'baz' })
+        return Promise.resolve().then(() => {
+          this.foo = 'baz'
+        })
       },
-      view (vnode) {
+      view() {
         return m('div', this.foo)
-      }
+      },
     }
 
     const html = render.sync(myAsyncComponent)
@@ -594,13 +591,13 @@ o.spec('async', () => {
       m(
         'span',
         {
-          oninit (node, waitFor) {
+          oninit(node, waitFor) {
             waitFors.push(waitFor)
             return new Promise(resolve => {
               oninitSpy()
               setTimeout(resolve, 10)
             })
-          }
+          },
         },
         'foo'
       )
@@ -614,9 +611,9 @@ o.spec('async', () => {
 o('render closure components', () => {
   const closureComponent = () => {
     return {
-      view (node) {
+      view() {
         return m('p', 'p')
-      }
+      },
     }
   }
   o(render.sync(closureComponent())).equals('<p>p</p>')
