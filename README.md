@@ -24,8 +24,10 @@ Usage
 -----
 
 ```javascript
-// use a mock DOM so we can run mithril on the server
-require('mithril/test-utils/browserMock')(global)
+// Make Mithril happy
+if (!global.window) {
+  global.window = global.document = global.requestAnimationFrame = undefined
+}
 
 var m = require('mithril')
 var render = require('mithril-node-render')
@@ -33,21 +35,23 @@ var render = require('mithril-node-render')
 render(m('span', 'huhu')).then(function (html) {
   // html === '<span>huhu</span>'
 })
+
+var html = render.sync(m('span', 'huhu'))
+// html === '<span>huhu</span>'
 ```
 
 Async components
 ----------------
 
-As you see the rendering is asynchron. It waits for resolve of all promises
-that might get returned from `oninit` callbacks.
+As you see the rendering is asynchronous. It lets you await certain data from within `oninit` hooks.
 
 ```javascript
 var myAsyncComponent = {
-  oninit: function (node) {
-    return new Promise(function (resolve) {
+  oninit: function (node, waitFor) {
+    waitFor(new Promise(function (resolve) {
       node.state.foo = 'bar'
       resolve()
-    })
+    }))
   },
   view: function (node) {
     return m('div', node.state.foo)
@@ -59,6 +63,28 @@ render(myAsyncComponent).then(function (html) {
 })
 ```
 
+Sync rendering
+--------------
+
+You can also render synchronously. You just don't get the `waitFor` callback.
+
+```js
+var myAsyncComponent = {
+  oninit: function (node, waitFor) {
+    // waitFor === undefined
+    new Promise(function (resolve) {
+      node.state.foo = 'bar'
+      resolve()
+    })
+  },
+  view: function (node) {
+    return m('div', node.state.foo)
+  }
+}
+
+var html = render.sync(myAsyncComponent)
+// html === '<div>bar</div>'
+```
 
 Options
 -------
@@ -67,17 +93,21 @@ Optionally pass in options as an object: `m.render(component, options)`.
 
 The following options are supported:
 
-**escapeAttributeValue(value)**
-`Default: render.escapeHtml`
+**escapeAttribute(value)**
+`Default: render.escapeAttribute`
 A filter function for attribute values. Receives value, returns what is printed.
 
-**escapeString(value)**
-`Default: render.escapeHtml`
+**escapeText(value)**
+`Default: render.escapeText`
 A filter function for string nodes. Receives value, returns what is printed.
 
 **strict**
 `Default: false`
-Set this to true to close all empty tags automatically. Default is HTML mode where tags like `<br>` and `<meta>` are allowed without closing tags. This is required if you're rendering XML or XHTML documents.
+Set this to true to close all empty tags automatically. Default is standard HTML mode where tags like `<br>` and `<meta>` are allowed to implicitly close themselves. This should be set to `true` if you're rendering XML-compatible HTML documents.
+
+**xml**
+`Default: false`
+Set this to true to render as generic XML instead of (possibly XML-compatible) HTML. Default is HTML mode, where children of void elements are ignored. This implies `strict: true`.
 
 
 See also

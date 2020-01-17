@@ -6,10 +6,6 @@
   "scripts": {
     "test": "node test.js && eslint index.js test.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/StephanHoyer/mithril-node-render.git"
-  },
   "keywords": [
     "mithril",
     "node",
@@ -18,15 +14,8 @@
   ],
   "author": "Stephan Hoyer <ste.hoyer@gmail.com>",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/StephanHoyer/mithril-node-render/issues"
-  },
-  "homepage": "https://github.com/StephanHoyer/mithril-node-render",
-  "dependencies": {
-    "co": "4.6.0"
-  },
   "peerDependencies": {
-    "mithril": "1.1.6"
+    "mithril": "^2.0.4"
   },
   "devDependencies": {
     "eslint": "4.11.0",
@@ -35,6 +24,10 @@
     "eslint-plugin-node": "5.2.1",
     "eslint-plugin-promise": "3.6.0",
     "eslint-plugin-standard": "3.0.1",
-    "mithril": "^1.1.6"
-  }
+    "mithril": "2.0.4",
+    "ospec": "4.0.1"
+  },
+  "repository": "MithrilJS/mithril-node-render",
+  "bugs": "https://github.com/MithrilJS/mithril-node-render/issues",
+  "homepage": "https://github.com/MithrilJS/mithril-node-render#readme"
 }

@@ -1,11 +1,18 @@
-"use strict";
-const m = require('mithril/hyperscript')
+'use strict';
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+function _instanceof(left, right) { if (right != null && typeof Symbol !== "undefined" && right[Symbol.hasInstance]) { return !!right[Symbol.hasInstance](left); } else { return left instanceof right; } }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) { if (!_instanceof(instance, Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var BabelClassComponent = function () {
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+var m = require('mithril/hyperscript');
+
+var BabelClassComponent =
+/*#__PURE__*/
+function () {
   function BabelClassComponent(vnode) {
     _classCallCheck(this, BabelClassComponent);
 
@@ -13,12 +20,12 @@ var BabelClassComponent = function () {
   }
 
   _createClass(BabelClassComponent, [{
-    key: 'oninit',
+    key: "oninit",
     value: function oninit() {
       this.vnode.state.foo = 'bar';
     }
   }, {
-    key: 'view',
+    key: "view",
     value: function view() {
       return m('div', ['hello', this.vnode.state.foo, this.vnode.attrs.foo]);
     }
