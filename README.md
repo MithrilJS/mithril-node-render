@@ -89,7 +89,7 @@ var html = render.sync(myAsyncComponent)
 Options
 -------
 
-Optionally pass in options as an object: `m.render(component, options)`.
+Optionally pass in options as an object: `render(component, options)`.
 
 The following options are supported:
 
