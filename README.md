@@ -43,7 +43,7 @@ var html = render.sync(m('span', 'huhu'))
 Async components
 ----------------
 
-As you see the rendering is asynchronous. It lets you await certain data from within `oninit` hooks or `constructor`.
+As you see the rendering is asynchronous. It lets you await certain data from within `oninit` hooks.
 
 ```javascript
 var myAsyncComponent = {
