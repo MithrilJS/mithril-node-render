@@ -142,7 +142,14 @@ function* tryRender(view, attrs, options, allowAwait) {
     if (typeof vnode.tag !== 'function') {
       vnode.state = Object.create(vnode.tag)
     } else if (vnode.tag.prototype && vnode.tag.prototype.view) {
-      vnode.state = new vnode.tag(vnode)
+      const promises = []
+      let waitFor
+      if (allowAwait)
+        waitFor = p => {
+          promises.push(p)
+        }
+      vnode.state = new vnode.tag(vnode, waitFor)
+      if (promises.length) yield promises
     } else {
       vnode.state = vnode.tag(vnode)
     }
