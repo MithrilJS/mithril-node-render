@@ -4,7 +4,7 @@ const o = require('ospec')
 const m = require('mithril/hyperscript')
 const render = require('./index')
 
-const ES6ClassComponent = require('./tests/fixtures/es6_class_component')
+const { ES6ClassComponent1, ES6ClassComponent2 } = require('./tests/fixtures/es6_class_component')
 const BabelClassComponent = require('./tests/fixtures/babel_class_component')
 const FunctionClassComponent = require('./tests/fixtures/function_class_component')
 
@@ -247,7 +247,8 @@ o.spec('components', () => {
 })
 
 const classComponents = {
-  es6: ES6ClassComponent,
+  es6_1: ES6ClassComponent1,
+  es6_2: ES6ClassComponent2,
   babel: BabelClassComponent,
   function: FunctionClassComponent,
 }
@@ -255,7 +256,25 @@ for (const type in classComponents) {
   o.spec('component of ' + type + ' class', () => {
     const classComponent = classComponents[type]
 
-    o('embedded', () => {
+    // async
+    o('async embedded', async () => {
+      o(await render(m('div', m(classComponent)))).equals(
+        '<div><div>hellobar</div></div>'
+      )
+      o(await render(m('span', m(classComponent, { foo: 'foz' })))).equals(
+        '<span><div>hellobarfoz</div></span>'
+      )
+    })
+
+    o('async as root', async () => {
+      o(await render(classComponent)).equals('<div>hellobar</div>')
+      o(await render(classComponent, { foo: '-attr-foo' })).equals(
+        '<div>hellobar-attr-foo</div>'
+      )
+    })
+
+    // sync
+    o('sync embedded', () => {
       o(render.sync(m('div', m(classComponent)))).equals(
         '<div><div>hellobar</div></div>'
       )
@@ -264,7 +283,7 @@ for (const type in classComponents) {
       )
     })
 
-    o('as root', () => {
+    o('sync as root', () => {
       o(render.sync(classComponent)).equals('<div>hellobar</div>')
       o(render.sync(classComponent, { foo: '-attr-foo' })).equals(
         '<div>hellobar-attr-foo</div>'
@@ -618,5 +637,57 @@ o('render closure components', () => {
   }
   o(render.sync(closureComponent())).equals('<p>p</p>')
 })
+
+
+// const classComponent = class ClassComponent {
+//   constructor (vnode, waitFor = () => {}) {
+//     this.vnode = vnode
+//     this.bar = ''
+//     waitFor(new Promise( (resolve) => {
+//       this.bar = 'bar'
+//       resolve()
+//     }))
+//   }
+//
+//   view () {
+//     return m('div', ['hello', this.bar, this.vnode.attrs.foo])
+//   }
+// }
+//
+// o.spec('class component sync', () => {
+//
+//   o('embedded', () => {
+//     o(render.sync(m('div', m(classComponent)))).equals(
+//       '<div><div>hellobar</div></div>'
+//     )
+//     o(render.sync(m('span', m(classComponent, { foo: 'foz' })))).equals(
+//       '<span><div>hellobarfoz</div></span>'
+//     )
+//   })
+//
+//   o('as root', () => {
+//     o(render.sync(classComponent)).equals('<div>hellobar</div>')
+//     o(render.sync(classComponent, { foo: '-attr-foo' })).equals(
+//       '<div>hellobar-attr-foo</div>'
+//     )
+//   })
+// })
+// o.spec('class component async', () => {
+//   o('embedded', async () => {
+//     o(await render(m('div', m(classComponent)))).equals(
+//       '<div><div>hellobar</div></div>'
+//     )
+//     o(await render(m('span', m(classComponent, { foo: 'foz' })))).equals(
+//       '<span><div>hellobarfoz</div></span>'
+//     )
+//   })
+//
+//   o('as root', async () => {
+//     o(await render(classComponent)).equals('<div>hellobar</div>')
+//     o(await render(classComponent, { foo: '-attr-foo' })).equals(
+//       '<div>hellobar-attr-foo</div>'
+//     )
+//   })
+// })
 
 o.run()
