@@ -256,7 +256,6 @@ for (const type in classComponents) {
   o.spec('component of ' + type + ' class', () => {
     const classComponent = classComponents[type]
 
-    // async
     o('async embedded', async () => {
       o(await render(m('div', m(classComponent)))).equals(
         '<div><div>hellobar</div></div>'
@@ -273,7 +272,6 @@ for (const type in classComponents) {
       )
     })
 
-    // sync
     o('sync embedded', () => {
       o(render.sync(m('div', m(classComponent)))).equals(
         '<div><div>hellobar</div></div>'
