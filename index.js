@@ -154,6 +154,11 @@ function* tryRender(view, attrs, options, allowAwait) {
   }
 
   function* renderElement(vnode) {
+    const innerHTML = vnode && vnode.attrs && vnode.attrs.innerHTML
+    if (innerHTML) {
+      delete vnode.attrs.innerHTML
+    }
+
     write(`<${vnode.tag}`)
     createAttrString(vnode)
     // Don't write children for void HTML elements
@@ -161,11 +166,15 @@ function* tryRender(view, attrs, options, allowAwait) {
       write(strict ? '/>' : '>')
     } else {
       write('>')
-      if (vnode.text != null) {
-        const text = '' + vnode.text
-        if (text !== '') write(escapeText(text))
+      if (innerHTML) {
+        write(innerHTML)
       } else {
-        yield* renderChildren(vnode.children)
+        if (vnode.text != null) {
+          const text = '' + vnode.text
+          if (text !== '') write(escapeText(text))
+        } else {
+          yield* renderChildren(vnode.children)
+        }
       }
       write(`</${vnode.tag}>`)
     }
