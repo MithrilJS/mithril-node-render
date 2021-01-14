@@ -111,6 +111,10 @@ function* tryRender(view, attrs, options, allowAwait) {
         if (value == null || typeof value === 'function') continue
         const name = key === 'className' ? 'class' : key
 
+        if (key === 'innerHTML') {
+          return
+        }
+
         if (name === 'style' && typeof value === 'object') {
           const styles = value
           const props = []
@@ -154,11 +158,6 @@ function* tryRender(view, attrs, options, allowAwait) {
   }
 
   function* renderElement(vnode) {
-    const innerHTML = vnode && vnode.attrs && vnode.attrs.innerHTML
-    if (innerHTML) {
-      delete vnode.attrs.innerHTML
-    }
-
     write(`<${vnode.tag}`)
     createAttrString(vnode)
     // Don't write children for void HTML elements
@@ -166,6 +165,7 @@ function* tryRender(view, attrs, options, allowAwait) {
       write(strict ? '/>' : '>')
     } else {
       write('>')
+      const innerHTML = vnode && vnode.attrs && vnode.attrs.innerHTML
       if (innerHTML) {
         write(innerHTML)
       } else {
