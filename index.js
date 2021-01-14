@@ -107,13 +107,10 @@ function* tryRender(view, attrs, options, allowAwait) {
   function createAttrString(view) {
     for (const key in view.attrs) {
       if (hasOwn.call(view.attrs, key)) {
+        if (key === 'innerHTML') continue
         let value = view.attrs[key]
         if (value == null || typeof value === 'function') continue
         const name = key === 'className' ? 'class' : key
-
-        if (key === 'innerHTML') {
-          return
-        }
 
         if (name === 'style' && typeof value === 'object') {
           const styles = value
