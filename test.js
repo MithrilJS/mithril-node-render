@@ -22,6 +22,10 @@ o.spec('render', () => {
     o(render.sync(m('#bar', 'content'))).equals('<div id="bar">content</div>')()
   })
 
+  o('should render innerHTML', () => {
+    o(render.sync(m('div', { innerHTML: 'Hello <b>there</b>' }))).equals('<div>Hello <b>there</b></div>')()
+  })
+
   o('should render short nodes when no children', () => {
     o(render.sync(m('br'))).equals('<br>')()
   })
