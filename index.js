@@ -29,6 +29,9 @@ const VOID_TAGS = new RegExp(
 const hasOwn = {}.hasOwnProperty
 
 function toStyleKey(str) {
+  if (str[0] === '-' && str[1] === '-') {
+    return str
+  }
   return str
     .replace(/\W+/g, '-')
     .replace(/([a-z\d])([A-Z])/g, '$1-$2')

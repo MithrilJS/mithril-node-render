@@ -85,6 +85,14 @@ o.spec('render', () => {
     ).equals('<span style="padding-left:10px;color:red"></span>')
   })
 
+  o('should respect css vars', () => {
+    o(
+      render.sync(
+        m('span', { style: { '--some-var': '10px', '--someVar': 'red' } })
+      )
+    ).equals('<span style="--some-var:10px;--someVar:red"></span>')
+  })
+
   o('should render numbers as text nodes', () => {
     o(render.sync(m('div', [1, m('span'), '2']))).equals(
       '<div>1<span></span>2</div>'
