@@ -3,8 +3,7 @@ mithril-node-render
 [![zulip, join chat](https://img.shields.io/badge/zulip-join_chat-brightgreen.svg)](https://mithril.zulipchat.com)
 [![Build Status](https://travis-ci.org/MithrilJS/mithril-node-render.svg?branch=master)](https://travis-ci.org/MithrilJS/mithril-node-render)
 [![rethink.js](https://img.shields.io/badge/rethink-js-yellow.svg)](https://github.com/rethinkjs/manifest)
-[![Dependency Status](https://david-dm.org/MithrilJS/mithril-node-render.svg)](https://david-dm.org/MithrilJS/mithril-node-render)
-[![devDependency Status](https://david-dm.org/MithrilJS/mithril-node-render/dev-status.svg)](https://david-dm.org/MithrilJS/mithril-node-render#info=devDependencies)
+![no dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)
 
 Use mithril views to render server side
 
